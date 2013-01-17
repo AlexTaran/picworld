@@ -1,0 +1,21 @@
+###VERTEX
+
+uniform mat4 mvp;
+uniform vec2 p1;
+uniform vec2 p2;
+
+attribute float k;
+
+void main(){
+    gl_Position = mvp*vec4(p1.x*(1.0-k)+k*p2.x,p1.y*(1.0-k)+k*p2.y,0.0,1.0);
+}
+
+###FRAGMENT
+
+precision mediump float;
+
+uniform vec4 color;
+
+void main(){
+    gl_FragColor = color;
+}

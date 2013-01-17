@@ -1,0 +1,36 @@
+###VERTEX
+
+uniform mat4 mvp;
+
+attribute vec2 pos;
+
+uniform vec2 offset;
+uniform vec2 scale;
+
+varying vec2 p;
+
+void main(){
+    gl_Position = mvp*vec4(pos.x*scale.x+offset.x,pos.y*scale.y+offset.y,0.0,1.0);
+    p = pos;
+}
+
+###FRAGMENT
+
+precision mediump float;
+
+uniform vec4 color;
+uniform sampler2D tex;
+varying vec2 p;
+
+void main(){
+    float d = dot(p,p);
+	if(d>=1.0){
+	    discard;
+	}
+	if(d>=0.6){
+	    gl_FragColor = color;
+	}else{
+	    gl_FragColor = texture2D(tex,vec2(p.x*0.5+0.5,p.y*0.5+0.5));
+	}
+    
+}

@@ -1,0 +1,58 @@
+###VERTEX
+
+uniform mat4 model_matrix;
+uniform mat4 view_matrix;
+uniform mat4 projection_matrix;
+uniform vec3 cam_pos;
+
+attribute vec3 pos;
+attribute vec3 tc;
+attribute vec3 nrm;
+
+varying vec3 tc_;
+varying vec3 nrm_;
+varying vec3 light_vec_;
+varying vec3 cam_vec_;
+varying vec3 half_vec_;
+
+void main(){
+    vec3 light_pos = vec3(5.0, 4.0, 3.0);
+    gl_Position = projection_matrix*view_matrix*model_matrix*vec4(pos.x,pos.y,pos.z,1.0);
+    vec4 p = model_matrix * vec4(pos, 1.0);
+    vec3 pos= p.xyz / p.w;
+    tc_ = tc;
+    nrm_ = nrm;
+    light_vec_ = light_pos - pos; 
+    cam_vec_ = cam_pos - pos;
+    half_vec_ = normalize(light_pos - pos) + normalize(cam_pos - pos);
+}
+
+###FRAGMENT
+
+precision mediump float;
+
+uniform sampler2D decal;
+
+varying vec3 tc_;
+varying vec3 nrm_;
+varying vec3 light_vec_;
+varying vec3 cam_vec_;
+varying vec3 half_vec_;
+
+void main(){
+    vec3 ambient = vec3(0.2, 0.2, 0.2);
+    vec3 diffuse = vec3(0.8, 0.8, 0.8);
+    
+    vec3 color = texture2D(decal, tc_.xy).rgb;
+    
+    vec3 light_dir = normalize(light_vec_);
+    vec3 nrm = normalize(nrm_);
+    vec3 half_vec = normalize(half_vec_);
+    vec3 cam_vec = normalize(cam_vec_);
+    vec3 refl = reflect(-cam_vec, nrm);
+    float specular = 16.0;
+    float diff_koef = max(0.0, dot(nrm, light_dir));
+    float spec_koef = pow(max(dot(nrm, half_vec), 0.0), specular);
+    //float spec_koef = pow(max(dot(nrm, refl), 0.0), specular);
+    gl_FragColor = vec4(color * (ambient + diffuse * diff_koef + vec3(spec_koef, spec_koef, spec_koef)), 1.0);
+}

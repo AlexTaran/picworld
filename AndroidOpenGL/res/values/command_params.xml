@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<dimen name="command_forward_x">12dip</dimen>
+	<dimen name="command_forward_y">12dip</dimen>
+	<dimen name="command_left_x">72dip</dimen>
+	<dimen name="command_left_y">12dip</dimen>
+	<dimen name="command_right_x">132dip</dimen>
+	<dimen name="command_right_y">12dip</dimen>
+	
+    <dimen name="command_image_size">48dip</dimen>
+</resources>

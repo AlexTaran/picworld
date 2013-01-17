@@ -1,0 +1,24 @@
+###VERTEX
+
+uniform mat4 modelview_matrix;
+uniform mat4 projection_matrix;
+
+attribute vec3 pos;
+attribute vec3 col;
+
+varying vec3 color;
+
+void main(){
+    gl_Position = projection_matrix*modelview_matrix*vec4(pos.x,pos.y,pos.z,1.0);
+    color = col;
+}
+
+###FRAGMENT
+
+precision mediump float;
+
+varying vec3 color;
+
+void main(){
+    gl_FragColor = vec4(color, 1.0);
+}
