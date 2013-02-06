@@ -27,21 +27,18 @@ public final class R {
         public static final int command_right=0x7f020004;
         public static final int command_run_a=0x7f020005;
         public static final int command_run_b=0x7f020006;
-        public static final int floor=0x7f020007;
-        public static final int ic_launcher=0x7f020008;
-        public static final int icon_go=0x7f020009;
-        public static final int icon_scaling=0x7f02000a;
-        public static final int icon_select=0x7f02000b;
-        public static final int mix=0x7f02000c;
-        public static final int r2d2_png=0x7f02000d;
+        public static final int empty_slot=0x7f020007;
+        public static final int floor=0x7f020008;
+        public static final int ic_launcher=0x7f020009;
+        public static final int icon_go=0x7f02000a;
+        public static final int icon_scaling=0x7f02000b;
+        public static final int icon_select=0x7f02000c;
+        public static final int mix=0x7f02000d;
+        public static final int r2d2_png=0x7f02000e;
     }
     public static final class id {
-        public static final int button_command_forward=0x7f070003;
-        public static final int button_command_left=0x7f070004;
-        public static final int button_command_right=0x7f070005;
-        public static final int game_view=0x7f070000;
-        public static final int linear=0x7f070001;
-        public static final int my_view=0x7f070002;
+        public static final int linear=0x7f070000;
+        public static final int my_view=0x7f070001;
     }
     public static final class layout {
         public static final int gamescreen=0x7f030000;

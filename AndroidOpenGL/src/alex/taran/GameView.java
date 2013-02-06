@@ -36,9 +36,9 @@ public class GameView extends RelativeLayout{
 	
 	@Override
 	public void onFinishInflate() {
-		buttonCommandForward = (ImageView)findViewById(R.id.button_command_forward);
-		buttonCommandLeft = (ImageView)findViewById(R.id.button_command_left);
-		buttonCommandRight = (ImageView)findViewById(R.id.button_command_right);
+		//buttonCommandForward = (ImageView)findViewById(R.id.button_command_forward);
+		//buttonCommandLeft = (ImageView)findViewById(R.id.button_command_left);
+		//buttonCommandRight = (ImageView)findViewById(R.id.button_command_right);
 		OnTouchListener listener = new OnTouchListener() {
 			private float startPointerX;
 			private float startPointerY;

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Random;
 
+import alex.taran.hud.AbstractHUDSystem;
 import alex.taran.opengl.ControlState.ControlMode;
 import alex.taran.opengl.GameUnit.UnitState;
 import alex.taran.opengl.utils.MathUtils;
@@ -20,6 +21,7 @@ import android.view.MotionEvent;
 public class MyGLSurfaceView extends GLSurfaceView {
 
 	private MyRenderer myRenderer;
+	private AbstractHUDSystem hudSystem;
 
 	public MyGLSurfaceView(Context context) {
 		super(context);
@@ -39,6 +41,10 @@ public class MyGLSurfaceView extends GLSurfaceView {
 		myRenderer = (MyRenderer)r;
 	}
 	
+	public void setHUD(AbstractHUDSystem hud) {
+		hudSystem = hud;
+	}
+	
 	private boolean isPressed;
 	private float lastX;
 	private float lastY;
@@ -51,11 +57,17 @@ public class MyGLSurfaceView extends GLSurfaceView {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent m) {
+		if (hudSystem.onTouchEvent(m)) {
+			return true;
+		}
 		if (m.getAction() == MotionEvent.ACTION_DOWN) {
 			isPressed = true;
 			lastX = m.getX();
 			lastY = m.getY();
 		} else if (m.getAction() == MotionEvent.ACTION_MOVE) {
+			if (!isPressed) {
+				return false;
+			}
 			float x = m.getX(), dx = x - lastX;
 			float y = m.getY(), dy = y - lastY;
 			myRenderer.cameraPhi += dx / 200.0f;

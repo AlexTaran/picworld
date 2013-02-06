@@ -3,6 +3,7 @@ package alex.taran.opengl;
 import java.util.Random;
 
 import alex.taran.GameView;
+import alex.taran.ProgrammingUI;
 import alex.taran.opengl.GameUnit.UnitType;
 import alex.taran.picworld.GameField;
 import alex.taran.picworld.Robot;
@@ -24,9 +25,10 @@ import android.widget.ImageView;
 
 public class AndroidOpenGLActivity extends Activity {
 	private MyRenderer renderer;
-	private GLSurfaceView glView;
+	private MyGLSurfaceView glView;
 	private World world;
-	private GameView gameView;
+	private ProgrammingUI programmingUI;
+	//private GameView gameView;
 	private static Context applicationContext;
 	
 	@Override
@@ -57,45 +59,18 @@ public class AndroidOpenGLActivity extends Activity {
 		Robot initRobot = new Robot();
 		
 		world = new World(gameField, initRobot);
-		
-		gameView.setEventListener(new GameView.EventListener() {
-			
-			@Override
-			public void onResetRobot() {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void onInterruptExecute() {
-				// TODO Auto-generated method stub
-				
-			}
-			
-			@Override
-			public void onBeginExecute() {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+		programmingUI = new ProgrammingUI(7, 5, 11);
 	}
 	
 	@Override
 	public void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		renderer = new MyRenderer(this.getApplicationContext(), world);
+		renderer = new MyRenderer(this.getApplicationContext(), world, programmingUI);
 		View v = findViewById(R.id.my_view);
 		//Log.e("FUCK", v.toString());
 		glView = (MyGLSurfaceView)v;
 		glView.setRenderer(renderer);
-		
-		/*gameView = (GameView)findViewById(R.id.game_view);
-		if (gameView == null) {
-			Log.e("FUCK", "Cannot find R.id.game_view!");
-			throw new NullPointerException("Cannot find R.id.game_view!");
-		}*/
-		
-		
+		glView.setHUD(programmingUI);
 		
 		
 		h.postDelayed(updateProc, 100);

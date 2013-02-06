@@ -49,14 +49,14 @@ public class Shader {
 	public void load(String vertexShaderCode, String fragmentShaderCode) {
 		String infoLog;
 		GLES20.glShaderSource(vertexShader, vertexShaderCode);
-		GLES20.glCompileShader(vertexShader);
+		GLES20.glCompileShader(vertexShader); checkShader(vertexShader);
 		GLES20.glAttachShader(program, vertexShader);
 		infoLog = GLES20.glGetShaderInfoLog(vertexShader).trim();
 		if(infoLog.length()!=0){
 			Log.e("OpenGL_Shaders", "VertexShader InfoLog: "+infoLog);
 		}
 		GLES20.glShaderSource(fragmentShader, fragmentShaderCode);
-		GLES20.glCompileShader(fragmentShader);
+		GLES20.glCompileShader(fragmentShader); checkShader(fragmentShader);
 		GLES20.glAttachShader(program, fragmentShader);
 		infoLog = GLES20.glGetShaderInfoLog(fragmentShader);
 		if(infoLog.length()!=0){
@@ -72,6 +72,13 @@ public class Shader {
 		}
 		attribLocations = new HashMap<String, Integer>();
 		uniformLocations = new HashMap<String, Integer>();
+	}
+	
+	private void checkShader(int shader) {
+		String infoLog = GLES20.glGetShaderInfoLog(shader);
+		if(infoLog.length()!=0){
+			Log.e("OpenGL_Shaders", "Shader InfoLog: "+infoLog);
+		}
 	}
 
 	public void use() {

@@ -9,7 +9,7 @@ public class Program {
 		this.program = program;
 	}
 	
-	public void beginExecurion() {
+	public void beginExecution() {
 		beginExecution("main");
 	}
 	

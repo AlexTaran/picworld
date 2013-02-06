@@ -1,57 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<alex.taran.GameView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/game_view"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
 
-    <LinearLayout 
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/linear"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+     android:layout_height="fill_parent"
         android:orientation="horizontal" >
-	    <alex.taran.opengl.MyGLSurfaceView
+<alex.taran.opengl.MyGLSurfaceView
 	        android:id="@+id/my_view"
-	        android:layout_width="0dp"
-	        android:layout_height="fill_parent"
-	        android:layout_weight="0.7" />
-	    <RelativeLayout
-	        android:layout_width="0dp"
-	        android:layout_height="fill_parent"
-	        android:layout_weight="0.3" />
-    </LinearLayout>
-	<!-- 
-	<TextView
-        android:id="@+id/tmp"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:text="@string/hello" />   -->
-	<alex.taran.CommandButton 
-	    android:id="@+id/button_command_forward"
-	    android:layout_width="@dimen/command_image_size"
-        android:layout_height="@dimen/command_image_size"
-        android:scaleType="fitXY"
-	    android:src="@drawable/command_forward"
-	    android:layout_marginLeft="@dimen/command_forward_x"
-	    android:layout_marginTop="@dimen/command_forward_y"
-	    />
-	<alex.taran.CommandButton 
-	    android:id="@+id/button_command_left"
-	    android:layout_width="@dimen/command_image_size"
-        android:layout_height="@dimen/command_image_size"
-        android:scaleType="fitXY"
-	    android:src="@drawable/command_left"
-	    android:layout_marginLeft="@dimen/command_left_x"
-	    android:layout_marginTop="@dimen/command_left_y"
-	    />
-	<alex.taran.CommandButton
-	    android:id="@+id/button_command_right"
-	    android:layout_width="@dimen/command_image_size"
-        android:layout_height="@dimen/command_image_size"
-        android:scaleType="fitXY"
-	    android:src="@drawable/command_right"
-	    android:layout_marginLeft="@dimen/command_right_x"
-	    android:layout_marginTop="@dimen/command_right_y"
-	    />
-</alex.taran.GameView>
+	        android:layout_width="fill_parent"
+	        android:layout_height="fill_parent"/>
+</LinearLayout>
