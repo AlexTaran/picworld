@@ -1,4 +1,4 @@
-package alex.taran.hud.animation;
+/*package alex.taran.hud.animation;
 
 import alex.taran.hud.AbstractHUDSystem;
 
@@ -18,4 +18,4 @@ public class InstantRemoveElementAnimation implements HUDAnimation {
 		hudSystem.removeElement(elementName);
 	}
 
-}
+}*/
