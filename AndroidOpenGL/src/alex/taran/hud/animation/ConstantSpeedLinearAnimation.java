@@ -1,4 +1,4 @@
-package alex.taran.hud.animation;
+/*package alex.taran.hud.animation;
 
 import alex.taran.hud.AbstractHUDSystem;
 import alex.taran.hud.HUDElement;
@@ -56,4 +56,4 @@ public class ConstantSpeedLinearAnimation implements HUDAnimation {
 	public void onFinished(AbstractHUDSystem hudSystem, String elementName) {
 		
 	}
-}
+}*/

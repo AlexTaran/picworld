@@ -1,27 +1,15 @@
 package alex.taran.opengl;
 
-import java.util.Currency;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Random;
-
-import alex.taran.hud.AbstractHUDSystem;
-import alex.taran.opengl.ControlState.ControlMode;
-import alex.taran.opengl.GameUnit.UnitState;
-import alex.taran.opengl.utils.MathUtils;
+import vladimir.losev.HUD;
 import android.content.Context;
-import android.graphics.PointF;
 import android.opengl.GLSurfaceView;
-import android.os.SystemClock;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 
 public class MyGLSurfaceView extends GLSurfaceView {
 
 	private MyRenderer myRenderer;
-	private AbstractHUDSystem hudSystem;
+	private HUD hudSystem;
 
 	public MyGLSurfaceView(Context context) {
 		super(context);
@@ -41,7 +29,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
 		myRenderer = (MyRenderer)r;
 	}
 	
-	public void setHUD(AbstractHUDSystem hud) {
+	public void setHUD(HUD hud) {
 		hudSystem = hud;
 	}
 	

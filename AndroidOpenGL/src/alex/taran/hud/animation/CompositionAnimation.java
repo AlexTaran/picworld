@@ -1,4 +1,4 @@
-package alex.taran.hud.animation;
+/*package alex.taran.hud.animation;
 
 import alex.taran.hud.AbstractHUDSystem;
 
@@ -43,3 +43,4 @@ public class CompositionAnimation implements HUDAnimation {
 	}
 
 }
+*/

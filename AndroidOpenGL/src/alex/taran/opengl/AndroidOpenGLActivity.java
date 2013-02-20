@@ -1,39 +1,28 @@
 package alex.taran.opengl;
 
-import java.util.Random;
-
-import alex.taran.GameView;
-import alex.taran.ProgrammingUI;
-import alex.taran.opengl.GameUnit.UnitType;
+import vladimir.losev.SimpleHUD;
 import alex.taran.picworld.GameField;
-import alex.taran.picworld.Robot;
 import alex.taran.picworld.GameField.CellLightState;
+import alex.taran.picworld.Robot;
 import alex.taran.picworld.World;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.SystemClock;
-import android.opengl.*;
-import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.ImageView;
 
 public class AndroidOpenGLActivity extends Activity {
 	private MyRenderer renderer;
 	private MyGLSurfaceView glView;
 	private World world;
-	private ProgrammingUI programmingUI;
+	private SimpleHUD programmingUI;
 	//private GameView gameView;
 	private static Context applicationContext;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+	
 		
 		applicationContext = getApplicationContext();
 		
@@ -59,7 +48,7 @@ public class AndroidOpenGLActivity extends Activity {
 		Robot initRobot = new Robot();
 		
 		world = new World(gameField, initRobot);
-		programmingUI = new ProgrammingUI(7, 5, 11);
+		programmingUI = new SimpleHUD(new int[] {7,5,11});
 	}
 	
 	@Override
@@ -71,7 +60,6 @@ public class AndroidOpenGLActivity extends Activity {
 		glView = (MyGLSurfaceView)v;
 		glView.setRenderer(renderer);
 		glView.setHUD(programmingUI);
-		
 		
 		h.postDelayed(updateProc, 100);
 	}

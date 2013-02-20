@@ -1,13 +1,15 @@
 package alex.taran.opengl;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.EmptyStackException;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-import alex.taran.ProgrammingUI;
-import alex.taran.hud.HUDElement;
+import vladimir.losev.HUDDraggableElement;
+import vladimir.losev.HUDDraggableElement.Command;
+import vladimir.losev.HUDElement;
+import vladimir.losev.HUDSlotElement;
+import vladimir.losev.SimpleHUD;
 import alex.taran.opengl.model.Model;
 import alex.taran.opengl.utils.GLBuffers;
 import alex.taran.opengl.utils.MatrixUtils;
@@ -38,7 +40,7 @@ public class MyRenderer implements Renderer {
 	private Model robot;
 	
 	private World world;
-	private ProgrammingUI programmingUI;
+	private SimpleHUD programmingUI;
 
 	private Shader simpleShader;
 	private Shader boxShader;
@@ -50,7 +52,7 @@ public class MyRenderer implements Renderer {
 	public float cameraTheta;
 	public float cameraRadius;
 	
-	public MyRenderer(Context theContext, World world, ProgrammingUI programmingUI) {
+	public MyRenderer(Context theContext, World world, SimpleHUD programmingUI) {
 		//rand = new Random(SystemClock.elapsedRealtime());
 
 		context = theContext;
@@ -227,46 +229,49 @@ public class MyRenderer implements Renderer {
 		GLES20.glUniformMatrix4fv(buttonShader.uniformLoc("projection_matrix"), 1, false, orthoMatrix.data, 0);
 		GLES20.glUniformMatrix4fv(buttonShader.uniformLoc("view_matrix"), 1, false, modelMatrix.data, 0);
 		buffers.bind("quad", GLES20.GL_ARRAY_BUFFER);
-		for (Entry<String, HUDElement> e: programmingUI.getElements().entrySet()) {
-			if(e.getKey().startsWith("slots/")) {
+		for (HUDElement e: programmingUI.getElements()) {
+			if (e instanceof HUDDraggableElement) {
+				HUDDraggableElement de = (HUDDraggableElement) e;
+				
+				switch (de.command) {
+				case NONE:     textures.bind("empty_slot");      break;
+				case LEFT:     textures.bind("command_left");    break;
+				case RIGHT:    textures.bind("command_right");   break;
+				case FORWARD:  textures.bind("command_forward"); break;
+				case LIGHT:    textures.bind("command_light");   break;
+				case RUN_A:    textures.bind("command_run_a");   break;
+				case RUN_B:    textures.bind("command_run_b");   break;
+				}
+			} else if (e instanceof HUDSlotElement) {
 				textures.bind("empty_slot");
-			} else if(e.getKey().endsWith("/forward")) {
-				textures.bind("command_forward");
-			} else if(e.getKey().endsWith("/left")) {
-				textures.bind("command_left");
-			} else if(e.getKey().endsWith("/right")) {
-				textures.bind("command_right");
-			} else if(e.getKey().endsWith("/light")) {
-				textures.bind("command_light");
-			} else if(e.getKey().endsWith("/run_a")) {
-				textures.bind("command_run_a");
-			} else if(e.getKey().endsWith("/run_b")) {
-				textures.bind("command_run_b");
 			}
+			
 			GLES20.glVertexAttribPointer(buttonShader.attribLoc("pos"), 2, GLES20.GL_FLOAT, true, 0, 0);
 			GLES20.glVertexAttribPointer(buttonShader.attribLoc("tc"),  2, GLES20.GL_FLOAT, true, 0, 0);
-			modelMatrix.setIdentity().translate(e.getValue().positionX, e.getValue().positionY, 0.0f);
-			if (e.getKey().startsWith("slots/")) {
-				modelMatrix.translate(0.0f, 0.0f, -0.1f);
-			}
-			modelMatrix.scale(e.getValue().sizeX, e.getValue().sizeY, 1.0f);
+      modelMatrix.setIdentity().translate(e.left, e.top, 0.0f);
+			//if (de.isInSlot) {
+			//	Matrix.translateM(modelMatrix, 0, 0.0f, 0.0f, -0.1f);
+			//}
+			modelMatrix.scale(e.height(), e.width(), 1.0f);
 			GLES20.glUniformMatrix4fv(buttonShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
 			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
 		}
 		buttonShader.unUse();
 		
+		long curr = SystemClock.elapsedRealtime();
+		programmingUI.update(curr);
+		
 		// FPS
 		if (lastTimeFPSUpdated < 0) {
-			lastTimeFPSUpdated = SystemClock.elapsedRealtime();
-			lastTimeWorldUpdated = SystemClock.elapsedRealtime();
+			lastTimeFPSUpdated = curr;
+			lastTimeWorldUpdated = curr;
 			frameCounter = 0;
 			lastFPS = 0;
 		} else {
 			frameCounter++;
-			long curr = SystemClock.elapsedRealtime();
-			float deltaTime = (curr - lastTimeWorldUpdated) / 1000.0f;
+			
+			//float deltaTime = (curr - lastTimeWorldUpdated) / 1000.0f;
 			//gameWorld.update(deltaTime);
-			programmingUI.onUpdate(deltaTime);
 			lastTimeWorldUpdated = curr;
 			if (curr - lastTimeFPSUpdated >= 1000) {
 				lastFPS = (int) (frameCounter * 1000.0f / (curr - lastTimeFPSUpdated));
@@ -281,7 +286,7 @@ public class MyRenderer implements Renderer {
 		width = w;
 		height = h;
 		GLES20.glViewport(0, 0, w, h);
-		programmingUI.generateElements(w, h);
+		programmingUI.init(w, h);
 		//gl.glMatrixMode(GLES20.GL_PROJECTION);
 		//gl.glLoadIdentity();
 		//gl.glOrthof(0.0f, 1.0f, 1.0f, 0.0f, 0.5f, -0.5f);

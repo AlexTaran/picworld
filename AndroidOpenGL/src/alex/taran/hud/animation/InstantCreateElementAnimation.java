@@ -1,4 +1,4 @@
-package alex.taran.hud.animation;
+/*package alex.taran.hud.animation;
 
 import alex.taran.hud.AbstractHUDSystem;
 import alex.taran.hud.HUDElement;
@@ -27,3 +27,4 @@ public class InstantCreateElementAnimation implements HUDAnimation {
 	}
 
 }
+*/

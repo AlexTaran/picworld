@@ -1,7 +1,8 @@
-package alex.taran;
+/*package alex.taran;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import alex.taran.hud.AbstractHUDSystem;
 import alex.taran.hud.HUDElement;
@@ -9,85 +10,47 @@ import alex.taran.hud.animation.CompositionAnimation;
 import alex.taran.hud.animation.ConstantSpeedLinearAnimation;
 import alex.taran.hud.animation.HUDAnimation;
 import alex.taran.hud.animation.InstantCreateElementAnimation;
-import alex.taran.hud.animation.InstantRemoveElementAnimation;
 import alex.taran.hud.animation.ResizeAnimation;
 import alex.taran.picworld.Program;
 import android.view.MotionEvent;
 
-public class ProgrammingUI extends AbstractHUDSystem {
-	private final int mainProcCapacity;
-	private final int procACapacity;
-	private final int procBCapacity;
-	
+public class ProgrammingUI extends AbstractHUDSystem {	
 	private boolean dragging = false;
 	private String draggingElementName = null;
 	private float previousX;
 	private float previousY;
 	
+	private final ArrayList<Integer> functionCapacities;
+	
 	private float elementSize;
 	private float marginSize;
 	
-	public ProgrammingUI(int mainProcCapacity, int procACapacity, int procBCapacity) {
-		this.mainProcCapacity = mainProcCapacity;
-		this.procACapacity = procACapacity;
-		this.procBCapacity = procBCapacity;
+	public ProgrammingUI(List<Integer> functionCapacities) {
+		this.functionCapacities = new ArrayList<Integer>(functionCapacities);
 	}
 	
 	public void generateElements(float screenWidth, float screenHeight) {
 		cleanup();
-		// basic unit
-		elementSize = screenWidth * 0.25f / 5;
-		marginSize = elementSize * 0.1f;
-		float xLeft = screenWidth * 0.75f;
-		float currY = elementSize * 2.0f;
-		float currX = xLeft;
-		// main
-		for (int i = 0; i < mainProcCapacity; ++i) {
-			HUDElement elem = new HUDElement(currX + marginSize, currY + marginSize,
-					elementSize - marginSize * 2, elementSize - marginSize * 2);
-			currX += elementSize;
-			if (i % 5 == 4) {
-				currX = xLeft;
-				currY += elementSize;
+
+		elementSize = screenWidth / 4f / 5f;
+		marginSize = elementSize / 10f;
+		float xOffset = screenWidth * 0.75f;
+		float yOffset = elementSize;
+		float dimention = elementSize - marginSize * 2;
+		Random rand = new Random();
+		
+		for (int capacity : functionCapacities) {
+			for (int i = 0; i < capacity; ++i) {			
+				float x = xOffset + marginSize + elementSize * (i % 5);
+				float y = yOffset + marginSize + elementSize * (i / 5);
+				
+				HUDElement elem = new HUDElement(x, y, dimention, dimention);
+				addElement("slots/procA/" +  rand.nextInt() + '/' + i, elem);
 			}
-			addElement("slots/main/" + Integer.toString(i), elem);
+			yOffset +=  elementSize *  (2 + (capacity - 1) / 5);
 		}
-		currY += elementSize;
-		if (mainProcCapacity % 5 != 0) {
-			currY += elementSize;
-		}
-		//procA
-		currX = xLeft;
-		for (int i = 0; i < procACapacity; ++i) {
-			HUDElement elem = new HUDElement(currX + marginSize, currY + marginSize,
-					elementSize - marginSize * 2, elementSize - marginSize * 2);
-			currX += elementSize;
-			if (i % 5 == 4) {
-				currX = xLeft;
-				currY += elementSize;
-			}
-			addElement("slots/procA/" + Integer.toString(i), elem);
-		}
-		currY += elementSize;
-		if (procACapacity % 5 != 0) {
-			currY += elementSize;
-		}
-		//procA
-		currX = xLeft;
-		for (int i = 0; i < procBCapacity; ++i) {
-			HUDElement elem = new HUDElement(currX + marginSize, currY + marginSize,
-					elementSize - marginSize * 2, elementSize - marginSize * 2);
-			currX += elementSize;
-			if (i % 5 == 4) {
-				currX = xLeft;
-				currY += elementSize;
-			}
-			addElement("slots/procB/" + Integer.toString(i), elem);
-		}
-		currY += elementSize;
-		if (procBCapacity % 5 != 0) {
-			currY += elementSize;
-		}
+		
+
 		// buttons
 		addElement("commands/forward", makeInitialHUDElementForCommand("commands/forward"));
 		addElement("commands/left", makeInitialHUDElementForCommand("commands/left"));
@@ -227,4 +190,4 @@ public class ProgrammingUI extends AbstractHUDSystem {
 			addElement(elementName, makeInitialHUDElementForCommand(elementName));
 		}
 	}
-}
+}*/
