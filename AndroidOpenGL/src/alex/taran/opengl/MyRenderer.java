@@ -359,7 +359,7 @@ public class MyRenderer implements Renderer {
 		textures.load("r2d2_png", R.drawable.r2d2_png);
 		Log.d("FUCK", "Start loading R2D2");
 		//r2d2 = new WavefrontObject("r2d2_obj");
-		//robot = Model.createFromObj(context, "r2d2_obj", 0.08f);
+		//robot = Model.loadFromAndroidObj(context, "r2d2_obj", 0.08f);
 		//buffers.load("r2d2_obj",GLBuffers.genBuffer(robot.genVertexBuffer()), robot.genNamedOffsetForVertexBuffer());
 		//Log.d("FUCK", "End loading R2D2. Groups num = " + robot.getGroups().size() + " v = " + .getVertices().size());
 		Log.d("FUCK", "End loading R2D2.");
