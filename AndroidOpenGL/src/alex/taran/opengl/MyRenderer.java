@@ -16,6 +16,7 @@ import alex.taran.opengl.utils.TextureHolder;
 import alex.taran.opengl.utils.VertexBufferHolder;
 import alex.taran.picworld.GameField;
 import alex.taran.picworld.World;
+import alex.taran.utils.Matrix4;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
@@ -43,6 +44,7 @@ public class MyRenderer implements Renderer {
 	private Shader boxShader;
 	private Shader objShader;
 	private Shader buttonShader;
+	private Shader skyboxShader;
 	
 	public float cameraPhi;
 	public float cameraTheta;
@@ -81,26 +83,73 @@ public class MyRenderer implements Renderer {
 		float camposy = (float)(cameraRadius * Math.sin(cameraTheta));
 		float camposz = (float)(cameraRadius * Math.cos(cameraTheta) * Math.sin(cameraPhi));
 		
-		float mvMatrix[] = new float[16];
+		/*float mvMatrix[] = new float[16];
 		float viewMatrix[] = new float[16];
 		float modelMatrix[] = new float[16];
 		float perspectiveMatrix[] = new float[16];
-		float orthoMatrix[] = new float[16];
-		countLookAtMatrix(viewMatrix);
-		MatrixUtils.perspectiveMatrix(perspectiveMatrix, 60.0f, width * 0.75f / height, 0.1f, 50.0f);
-		Matrix.setIdentityM(modelMatrix, 0);
-		Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
+		float orthoMatrix[] = new float[16];*/
+		
+		Matrix4 mvMatrix = new Matrix4();
+		Matrix4 viewMatrix = new Matrix4();
+		Matrix4 modelMatrix = new Matrix4();
+		Matrix4 perspectiveMatrix = new Matrix4();
+		Matrix4 orthoMatrix = new Matrix4();
+		
+		perspectiveMatrix.setPerspectiveMatrix(60.0f, width * 0.75f / height, 0.1f, 50.0f);
+		modelMatrix.setIdentity();
+		mvMatrix.setProduction(viewMatrix, modelMatrix);
+		
+		// SKYBOX
+		GLES20.glDisable(GLES20.GL_DEPTH_TEST);
+		skyboxShader.use();
+		buffers.bind("cquad", GLES20.GL_ARRAY_BUFFER);
+		viewMatrix.setLookAt(0.0f, 0.0f, 0.0f, -camposx, -camposy, -camposz, 0.0f, 1.0f, 0.0f);
+		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("view_matrix"), 1, false, viewMatrix.data, 0);
+		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("projection_matrix"), 1, false, perspectiveMatrix.data, 0);
+		skyboxShader.enableVertexAttribArray("pos");
+		skyboxShader.enableVertexAttribArray("tc");
+		GLES20.glVertexAttribPointer(skyboxShader.attribLoc("pos"), 2, GLES20.GL_FLOAT, true, 0, 0);
+		GLES20.glVertexAttribPointer(skyboxShader.attribLoc("tc"),  2, GLES20.GL_FLOAT, true, 0, 12 * 4);
+		// NZ
+		textures.bind("skybox_nz");
+		modelMatrix.setIdentity().translate(0.0f, 0.0f, -0.5f).scale(1.0f, -1.0f, 1.0f);
+		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+		// PX
+		textures.bind("skybox_px");
+		modelMatrix.setIdentity().rotate(90.0f, 0.0f, -1.0f, 0.0f).translate(0.0f, 0.0f, -0.5f).scale(1.0f, -1.0f, 1.0f);
+		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+		// PZ
+		textures.bind("skybox_pz");
+		modelMatrix.setIdentity().rotate(180.0f, 0.0f, -1.0f, 0.0f).translate(0.0f, 0.0f, -0.5f).scale(1.0f, -1.0f, 1.0f);
+		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+		// NX
+		textures.bind("skybox_nx");
+		modelMatrix.setIdentity().rotate(90.0f, 0.0f, 1.0f, 0.0f).translate(0.0f, 0.0f, -0.5f).scale(1.0f, -1.0f, 1.0f);
+		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+		
+		textures.unbind();
+		buffers.unBind(GLES20.GL_ARRAY_BUFFER);
+		skyboxShader.unUse();
+		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+		
+		viewMatrix.setLookAt(camposx, camposy, camposz, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 		
 		// BASIS
 		simpleShader.use();
 		buffers.bind("basis", GLES20.GL_ARRAY_BUFFER);
-		GLES20.glUniformMatrix4fv(simpleShader.uniformLoc("modelview_matrix"), 1, false, mvMatrix, 0);
-		GLES20.glUniformMatrix4fv(simpleShader.uniformLoc("projection_matrix"), 1, false, perspectiveMatrix, 0);
+		modelMatrix.setIdentity();
+		mvMatrix.setProduction(viewMatrix, modelMatrix);
+		GLES20.glUniformMatrix4fv(simpleShader.uniformLoc("modelview_matrix"), 1, false, mvMatrix.data, 0);
+		GLES20.glUniformMatrix4fv(simpleShader.uniformLoc("projection_matrix"), 1, false, perspectiveMatrix.data, 0);
 		simpleShader.enableVertexAttribArray("pos");
 		simpleShader.enableVertexAttribArray("col");
 		GLES20.glVertexAttribPointer(simpleShader.attribLoc("pos"), 3, GLES20.GL_FLOAT, true, 24, 0);
 		GLES20.glVertexAttribPointer(simpleShader.attribLoc("col"), 3, GLES20.GL_FLOAT, true, 24, 12);
-		//GLES20.glDrawArrays(GLES20.GL_LINES, 0, 6);
+		GLES20.glDrawArrays(GLES20.GL_LINES, 0, 6);
 		buffers.unBind(GLES20.GL_ARRAY_BUFFER);
 		simpleShader.unUse();
 		
@@ -119,20 +168,18 @@ public class MyRenderer implements Renderer {
 		GLES20.glVertexAttribPointer(boxShader.attribLoc("tc"), 2, GLES20.GL_FLOAT, true, 0,
 				buffers.getNamedOffset("halfbox", "texcoords"));
 		GLES20.glUniform1i(boxShader.attribLoc("decal"), 0);
-		GLES20.glUniformMatrix4fv(boxShader.uniformLoc("projection_matrix"), 1, false, perspectiveMatrix, 0);
+		GLES20.glUniformMatrix4fv(boxShader.uniformLoc("projection_matrix"), 1, false, perspectiveMatrix.data, 0);
 		
 		GameField gameField = world.getGameField();
 		for (int i = 0; i < gameField.getSizeX(); ++i) {
 			for (int j = 0; j < gameField.getSizeZ(); ++j) {
 				int height = gameField.getCellAt(i, j).getHeight();
 				for (int k = 0; k <= height; ++k) {
-					Matrix.setIdentityM(modelMatrix, 0);
-					Matrix.translateM(modelMatrix, 0, i - gameField.getSizeX() * 0.5f, k * 0.5f, j - gameField.getSizeZ() * 0.5f);
-					Matrix.multiplyMM(mvMatrix, 0, viewMatrix, 0, modelMatrix, 0);
-					GLES20.glUniformMatrix4fv(boxShader.uniformLoc("view_matrix"), 1, false, viewMatrix, 0);
-					GLES20.glUniformMatrix4fv(boxShader.uniformLoc("model_matrix"), 1, false, modelMatrix, 0);
-					//GLES20.glUniformMatrix3fv(boxShader.uniformLoc("normal_matrix"), 1, false, MatrixUtils.calcNormalMatrix(mvMatrix), 0);
-					GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6 * 6);
+					modelMatrix.setIdentity().translate(i - gameField.getSizeX() * 0.5f, k * 0.5f, j - gameField.getSizeZ() * 0.5f);
+					mvMatrix.setProduction(viewMatrix, modelMatrix);
+					GLES20.glUniformMatrix4fv(boxShader.uniformLoc("view_matrix"), 1, false, viewMatrix.data, 0);
+					GLES20.glUniformMatrix4fv(boxShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
+					//GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6 * 6);
 				}
 			}
 		}
@@ -141,6 +188,7 @@ public class MyRenderer implements Renderer {
 		boxShader.unUse();
 		
 		// ROBOT
+		/*
 		objShader.use();
 		buffers.bind("r2d2_obj", GLES20.GL_ARRAY_BUFFER);
 		textures.bind("r2d2_png");
@@ -165,19 +213,19 @@ public class MyRenderer implements Renderer {
 		
 		textures.unbind();
 		buffers.unBind(GLES20.GL_ARRAY_BUFFER);
-		objShader.unUse();
+		objShader.unUse();*/
 		
 		// UI
 		GLES20.glViewport(0, 0, (int)width, (int)height);
 		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
 		buttonShader.use();
-		Matrix.orthoM(orthoMatrix, 0, 0.0f, width, height, 0.0f, -1.0f, 1.0f);
+		orthoMatrix.setOrthoMatrix(0.0f, width, height, 0.0f, -1.0f, 1.0f);
 		GLES20.glUniform1i(buttonShader.uniformLoc("decal"), 0);
 		buttonShader.enableVertexAttribArray("pos");
 		buttonShader.enableVertexAttribArray("tc");
-		Matrix.setIdentityM(modelMatrix, 0);
-		GLES20.glUniformMatrix4fv(buttonShader.uniformLoc("projection_matrix"), 1, false, orthoMatrix, 0);
-		GLES20.glUniformMatrix4fv(buttonShader.uniformLoc("view_matrix"), 1, false, modelMatrix, 0);
+		modelMatrix.setIdentity();
+		GLES20.glUniformMatrix4fv(buttonShader.uniformLoc("projection_matrix"), 1, false, orthoMatrix.data, 0);
+		GLES20.glUniformMatrix4fv(buttonShader.uniformLoc("view_matrix"), 1, false, modelMatrix.data, 0);
 		buffers.bind("quad", GLES20.GL_ARRAY_BUFFER);
 		for (Entry<String, HUDElement> e: programmingUI.getElements().entrySet()) {
 			if(e.getKey().startsWith("slots/")) {
@@ -197,13 +245,12 @@ public class MyRenderer implements Renderer {
 			}
 			GLES20.glVertexAttribPointer(buttonShader.attribLoc("pos"), 2, GLES20.GL_FLOAT, true, 0, 0);
 			GLES20.glVertexAttribPointer(buttonShader.attribLoc("tc"),  2, GLES20.GL_FLOAT, true, 0, 0);
-			Matrix.setIdentityM(modelMatrix, 0);
-			Matrix.translateM(modelMatrix, 0, e.getValue().positionX, e.getValue().positionY, 0.0f);
+			modelMatrix.setIdentity().translate(e.getValue().positionX, e.getValue().positionY, 0.0f);
 			if (e.getKey().startsWith("slots/")) {
-				Matrix.translateM(modelMatrix, 0, 0.0f, 0.0f, -0.1f);
+				modelMatrix.translate(0.0f, 0.0f, -0.1f);
 			}
-			Matrix.scaleM(modelMatrix, 0, e.getValue().sizeX, e.getValue().sizeY, 1.0f);
-			GLES20.glUniformMatrix4fv(buttonShader.uniformLoc("model_matrix"), 1, false, modelMatrix, 0);
+			modelMatrix.scale(e.getValue().sizeX, e.getValue().sizeY, 1.0f);
+			GLES20.glUniformMatrix4fv(buttonShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
 			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
 		}
 		buttonShader.unUse();
@@ -272,6 +319,13 @@ public class MyRenderer implements Renderer {
 		textures.load("command_run_a", R.drawable.command_run_a);
 		textures.load("command_run_b", R.drawable.command_run_b);
 		
+		textures.load("skybox_px", R.drawable.fronthot);
+		textures.load("skybox_nx", R.drawable.backhot);
+		textures.load("skybox_pz", R.drawable.righthot);
+		textures.load("skybox_nz", R.drawable.lefthot);
+		textures.load("skybox_py", R.drawable.tophot);
+		textures.load("skybox_ny", R.drawable.bothot);
+		
 		Log.d("FUCK", "Start loading textures");
 		textures.load("bricks", R.drawable.bricks);
 		textures.load("floor", R.drawable.floor);
@@ -282,6 +336,7 @@ public class MyRenderer implements Renderer {
 		boxShader = Shader.loadFromResource(context, "boxshader");
 		objShader = Shader.loadFromResource(context, "objshader");
 		buttonShader = Shader.loadFromResource(context, "buttonshader");
+		skyboxShader = Shader.loadFromResource(context, "skyboxshader");
 	
 		buffers = new VertexBufferHolder(context);
 		buffers.load("basis", GLBuffers.genBuffer(new float[]{
@@ -293,13 +348,14 @@ public class MyRenderer implements Renderer {
 		    	0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
 		    }));
 		buffers.load("quad", GLBuffers.genQuadBuffer(1.0f, 1.0f));
+		buffers.load("cquad", GLBuffers.genCenteredQuadBuffer(0.5f, 0.5f));
 		buffers.load("halfbox", GLBuffers.genBoxBuffer(0.5f, 0.25f, 0.5f), GLBuffers.genBoxBufferNamedOffsets());
 		
 		textures.load("r2d2_png", R.drawable.r2d2_png);
 		Log.d("FUCK", "Start loading R2D2");
 		//r2d2 = new WavefrontObject("r2d2_obj");
-		robot = Model.createFromObj(context, "r2d2_obj", 0.08f);
-		buffers.load("r2d2_obj",GLBuffers.genBuffer(robot.genVertexBuffer()), robot.genNamedOffsetForVertexBuffer());
+		//robot = Model.createFromObj(context, "r2d2_obj", 0.08f);
+		//buffers.load("r2d2_obj",GLBuffers.genBuffer(robot.genVertexBuffer()), robot.genNamedOffsetForVertexBuffer());
 		//Log.d("FUCK", "End loading R2D2. Groups num = " + robot.getGroups().size() + " v = " + .getVertices().size());
 		Log.d("FUCK", "End loading R2D2.");
 	}

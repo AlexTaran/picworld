@@ -26,6 +26,24 @@ public class GLBuffers {
 		return vbo;
 	}
 	
+	public static FloatBuffer genCenteredQuadBuffer(float halfW, float halfH) {
+		FloatBuffer vbo = genBuffer(6 * 2 * 2);
+		vbo.put(0,-halfW); vbo.put(1,-halfH);
+		vbo.put(2,halfW); vbo.put(3,-halfH);
+		vbo.put(4,halfW); vbo.put(5,halfH);
+		vbo.put(6,-halfW); vbo.put(7,-halfH);
+		vbo.put(8,halfW); vbo.put(9,halfH);
+		vbo.put(10,-halfW); vbo.put(11,halfH);
+		
+		vbo.put(12,0.0f); vbo.put(13,0.0f);
+		vbo.put(14,1.0f); vbo.put(15,0.0f);
+		vbo.put(16,1.0f); vbo.put(17,1.0f);
+		vbo.put(18,0.0f); vbo.put(19,0.0f);
+		vbo.put(20,1.0f); vbo.put(21,1.0f);
+		vbo.put(22,0.0f); vbo.put(23,1.0f);
+		return vbo;
+	}
+	
 	public static FloatBuffer genBuffer(float[] values) {
 		FloatBuffer fb = genBuffer(values.length);
 		for (int i = 0; i < values.length; ++i) {

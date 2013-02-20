@@ -3,6 +3,9 @@ package alex.taran.opengl.utils;
 import android.opengl.Matrix;
 
 public class MatrixUtils {
+	// THIS CLASS IS OBSOLETE AND DECLARED DEPRECATED BY alextaran
+	// IT MUST BE DELETED IN SOME NEXT COMMITS
+	// ANYTHING MUST BE MOVED TO alex.taran.utils.Matrix4
 	public static void perspectiveMatrix(float matrix[], float fovyInDegrees, float aspectRatio, float znear, float zfar) {
 		 float ymax, xmax;
 		 ymax = znear * (float)Math.tan(fovyInDegrees * Math.PI / 360.0f);
