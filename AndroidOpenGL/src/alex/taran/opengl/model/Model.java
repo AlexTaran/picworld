@@ -1,5 +1,6 @@
 package alex.taran.opengl.model;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,12 +24,20 @@ public class Model {
 		totalSize = sum;
 	}
 	
-	public static Model createFromObj(Context context, String fileName) {
-		return createFromObj(context, fileName, 1.0f);
+	public static Model loadFromAndroidObj(Context context, String fileName) {
+		return loadObjFromStream(ResourceUtils.getInputStreamForRawResource(context, fileName));
+	}
+	
+	public static Model loadFromAndroidObj(Context context, String fileName, float scale) {
+		return loadObjFromStream(ResourceUtils.getInputStreamForRawResource(context, fileName), scale);
+	}
+	
+	public static Model loadObjFromStream(InputStream is) {
+		return loadObjFromStream(is, 1.0f);
 	}
 
-	public static Model createFromObj(Context context, String fileName, float scale) {
-		List<String> file = ResourceUtils.loadRawTextFile(context, fileName);
+	public static Model loadObjFromStream(InputStream is, float scale) {
+		List<String> file = ResourceUtils.loadInputStreamAsLines(is);
 		Log.i("MYOBJ", "Start loading OBJ model with " + file.size() + " lines");
 		List<Float> vertices = new ArrayList<Float>();
 		List<Float> texcoords = new ArrayList<Float>();

@@ -15,10 +15,18 @@ import android.util.Log;
 
 public class ResourceUtils {
 	public static List<String> loadRawTextFile(Context context, String name) {
+		return loadInputStreamAsLines(getInputStreamForRawResource(context, name));
+	}
+	
+	public static InputStream getInputStreamForRawResource(Context context, String name) {
 		Resources res = context.getResources();
 		int id = res.getIdentifier(name, "raw", context.getPackageName());
 		InputStream inputStream = res.openRawResource(id);
 
+		return inputStream;
+	}
+	
+	public static List<String> loadInputStreamAsLines(InputStream inputStream) {
 		InputStreamReader inputreader = new InputStreamReader(inputStream);
 		BufferedReader buffreader = new BufferedReader(inputreader);
 		List<String> file = new ArrayList<String>();
