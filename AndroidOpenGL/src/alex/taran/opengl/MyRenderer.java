@@ -81,6 +81,13 @@ public class MyRenderer implements Renderer {
 		float camposy = (float)(cameraRadius * Math.sin(cameraTheta));
 		float camposz = (float)(cameraRadius * Math.cos(cameraTheta) * Math.sin(cameraPhi));
 		
+		float camrightx = -(float) Math.sin(cameraPhi);
+		float camrightz = (float) Math.cos(cameraPhi);
+		
+		float camupx = - camposy * camrightz;
+		float camupy = - camposz * camrightx + camposx * camrightz;
+		float camupz = + camposy * camrightx;
+		
 		Matrix4 mvMatrix = new Matrix4();
 		Matrix4 viewMatrix = new Matrix4();
 		Matrix4 modelMatrix = new Matrix4();
@@ -95,7 +102,7 @@ public class MyRenderer implements Renderer {
 		GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 		skyboxShader.use();
 		buffers.bind("cquad", GLES20.GL_ARRAY_BUFFER);
-		viewMatrix.setLookAt(0.0f, 0.0f, 0.0f, -camposx, -camposy, -camposz, 0.0f, 1.0f, 0.0f);
+		viewMatrix.setLookAt(0.0f, 0.0f, 0.0f, -camposx, -camposy, -camposz, camupx, camupy, camupz);
 		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("view_matrix"), 1, false, viewMatrix.data, 0);
 		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("projection_matrix"), 1, false, perspectiveMatrix.data, 0);
 		skyboxShader.enableVertexAttribArray("pos");
@@ -138,7 +145,7 @@ public class MyRenderer implements Renderer {
 		skyboxShader.unUse();
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		
-		viewMatrix.setLookAt(camposx, camposy, camposz, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		viewMatrix.setLookAt(camposx, camposy, camposz, 0.0f, 0.0f, 0.0f, camupx, camupy, camupz);
 		
 		// BASIS
 		simpleShader.use();
@@ -181,7 +188,7 @@ public class MyRenderer implements Renderer {
 					mvMatrix.setProduction(viewMatrix, modelMatrix);
 					GLES20.glUniformMatrix4fv(boxShader.uniformLoc("view_matrix"), 1, false, viewMatrix.data, 0);
 					GLES20.glUniformMatrix4fv(boxShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
-					//GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6 * 6);
+					GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6 * 6);
 				}
 			}
 		}
