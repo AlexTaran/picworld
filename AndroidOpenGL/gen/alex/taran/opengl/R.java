@@ -20,21 +20,27 @@ public final class R {
         public static final int command_right_y=0x7f050005;
     }
     public static final class drawable {
-        public static final int bricks=0x7f020000;
-        public static final int command_forward=0x7f020001;
-        public static final int command_left=0x7f020002;
-        public static final int command_light=0x7f020003;
-        public static final int command_right=0x7f020004;
-        public static final int command_run_a=0x7f020005;
-        public static final int command_run_b=0x7f020006;
-        public static final int empty_slot=0x7f020007;
-        public static final int floor=0x7f020008;
-        public static final int ic_launcher=0x7f020009;
-        public static final int icon_go=0x7f02000a;
-        public static final int icon_scaling=0x7f02000b;
-        public static final int icon_select=0x7f02000c;
-        public static final int mix=0x7f02000d;
-        public static final int r2d2_png=0x7f02000e;
+        public static final int backhot=0x7f020000;
+        public static final int bothot=0x7f020001;
+        public static final int bricks=0x7f020002;
+        public static final int command_forward=0x7f020003;
+        public static final int command_left=0x7f020004;
+        public static final int command_light=0x7f020005;
+        public static final int command_right=0x7f020006;
+        public static final int command_run_a=0x7f020007;
+        public static final int command_run_b=0x7f020008;
+        public static final int empty_slot=0x7f020009;
+        public static final int floor=0x7f02000a;
+        public static final int fronthot=0x7f02000b;
+        public static final int ic_launcher=0x7f02000c;
+        public static final int icon_go=0x7f02000d;
+        public static final int icon_scaling=0x7f02000e;
+        public static final int icon_select=0x7f02000f;
+        public static final int lefthot=0x7f020010;
+        public static final int mix=0x7f020011;
+        public static final int r2d2_png=0x7f020012;
+        public static final int righthot=0x7f020013;
+        public static final int tophot=0x7f020014;
     }
     public static final class id {
         public static final int linear=0x7f070000;
@@ -54,6 +60,7 @@ public final class R {
         public static final int r2d2_mtl=0x7f040006;
         public static final int r2d2_obj=0x7f040007;
         public static final int simpleshader=0x7f040008;
+        public static final int skyboxshader=0x7f040009;
     }
     public static final class string {
         public static final int app_name=0x7f060001;
