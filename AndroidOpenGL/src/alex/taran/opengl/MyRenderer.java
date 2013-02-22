@@ -10,6 +10,7 @@ import vladimir.losev.HUDSlotElement;
 import vladimir.losev.SimpleHUD;
 import alex.taran.opengl.model.Model;
 import alex.taran.opengl.utils.GLBuffers;
+import alex.taran.opengl.utils.ResourceUtils;
 import alex.taran.opengl.utils.Shader;
 import alex.taran.opengl.utils.TextureHolder;
 import alex.taran.opengl.utils.VertexBufferHolder;
@@ -201,7 +202,7 @@ public class MyRenderer implements Renderer {
 		boxShader.unUse();
 		
 		// ROBOT
-		/*
+		
 		objShader.use();
 		buffers.bind("r2d2_obj", GLES20.GL_ARRAY_BUFFER);
 		textures.bind("r2d2_png");
@@ -211,11 +212,10 @@ public class MyRenderer implements Renderer {
 		
 		GLES20.glUniform1i(objShader.attribLoc("decal"), 0);
 		GLES20.glUniform3f(objShader.uniformLoc("cam_pos"), camposx, camposy, camposz);
-		GLES20.glUniformMatrix4fv(objShader.uniformLoc("projection_matrix"), 1, false, perspectiveMatrix, 0);
-		GLES20.glUniformMatrix4fv(objShader.uniformLoc("view_matrix"), 1, false, viewMatrix, 0);
-		Matrix.setIdentityM(modelMatrix, 0);
-		Matrix.translateM(modelMatrix, 0, 0.0f, 0.8f, 0.0f);
-		GLES20.glUniformMatrix4fv(objShader.uniformLoc("model_matrix"), 1, false, modelMatrix, 0);
+		GLES20.glUniformMatrix4fv(objShader.uniformLoc("projection_matrix"), 1, false, perspectiveMatrix.data, 0);
+		GLES20.glUniformMatrix4fv(objShader.uniformLoc("view_matrix"), 1, false, viewMatrix.data, 0);
+		modelMatrix.setIdentity().translate(0.0f, 0.8f, 0.0f);
+		GLES20.glUniformMatrix4fv(objShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
 		for (String s: robot.getGroupNames()) {
 			int basePos = buffers.getNamedOffset("r2d2_obj", s);
 			GLES20.glVertexAttribPointer(objShader.attribLoc("pos"), 3, GLES20.GL_FLOAT, true, 3 * 3 * 4, basePos);
@@ -226,7 +226,7 @@ public class MyRenderer implements Renderer {
 		
 		textures.unbind();
 		buffers.unBind(GLES20.GL_ARRAY_BUFFER);
-		objShader.unUse();*/
+		objShader.unUse();
 		
 		// UI
 		GLES20.glViewport(0, 0, (int)width, (int)height);
@@ -372,7 +372,9 @@ public class MyRenderer implements Renderer {
 		Log.d("FUCK", "Start loading R2D2");
 		//r2d2 = new WavefrontObject("r2d2_obj");
 		//robot = Model.loadFromAndroidObj(context, "r2d2_obj", 0.08f);
-		//buffers.load("r2d2_obj",GLBuffers.genBuffer(robot.genVertexBuffer()), robot.genNamedOffsetForVertexBuffer());
+		//ResourceUtils.saveObjectToExternalStorage(context, robot, "robot.txt");
+		robot = Model.loadSerializedFromStream(ResourceUtils.getInputStreamForRawResource(context, "robot"));
+		buffers.load("r2d2_obj",GLBuffers.genBuffer(robot.genVertexBuffer()), robot.genNamedOffsetForVertexBuffer());
 		//Log.d("FUCK", "End loading R2D2. Groups num = " + robot.getGroups().size() + " v = " + .getVertices().size());
 		Log.d("FUCK", "End loading R2D2.");
 	}

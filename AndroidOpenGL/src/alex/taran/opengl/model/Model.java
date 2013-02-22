@@ -1,6 +1,10 @@
 package alex.taran.opengl.model;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -14,12 +18,19 @@ import alex.taran.opengl.utils.ResourceUtils;
 import android.content.Context;
 import android.util.Log;
 
-public class Model {
+public class Model implements Serializable {
+	private static final long serialVersionUID = 836158788393139455L;
+	
 	private Model(Map<String, List<Float>> groups) {
-		this.groups = groups;
+		this.groups = new HashMap<String, float[]>();
 		int sum = 0;
 		for (Entry<String,List<Float> > e : groups.entrySet()) {
 			sum += e.getValue().size();
+			float[] arr = new float[e.getValue().size()];
+			for (int i = 0; i < e.getValue().size(); ++i) {
+				arr[i] = e.getValue().get(i);
+			}
+			this.groups.put(e.getKey(), arr);
 		}
 		totalSize = sum;
 	}
@@ -142,32 +153,61 @@ public class Model {
 		}
 		return new Model(groups);
 	}
+	
+	public static Model loadSerializedFromStream(InputStream is) {
+		try {
+			ObjectInputStream ois = new ObjectInputStream(is);
+			Model mdl = (Model)ois.readObject();
+			Log.d("FUCK", "Model loaded. Number of groups: " + mdl.groups.size());
+			return mdl;
+		} catch (Exception e) {
+			Log.d("FUCK", "Error in deserialization of Model from stream" + e.getMessage());
+			return null;
+		}
+	}
 
 	public Map<String, Integer> genNamedOffsetForVertexBuffer() {
 		int currentOffset = 0;
 		Map<String, Integer> namedOffsets = new HashMap<String, Integer>();
 		for (String name : groups.keySet()) {
 			namedOffsets.put(name, currentOffset * 4);
-			currentOffset += groups.get(name).size();
+			currentOffset += groups.get(name).length;
 		}
 		return namedOffsets;
 	}
 
 	public float[] genVertexBuffer() {
+		int vboSize = 0;
+		for (String name : groups.keySet()) {
+			vboSize += groups.get(name).length;
+		}
+		float[] buf = new float[vboSize];
+		int offset = 0;
+		for (String name : groups.keySet()) {
+			float[] arr = groups.get(name);
+			for (int i = 0; i < arr.length; ++i) {
+				buf[offset] = arr[i];
+				++offset;
+			}
+		}
+		return buf;
+		/*
 		List<Float> vbo = new ArrayList<Float>();
+		
 		for (String name : groups.keySet()) {
 			vbo.addAll(groups.get(name));
 			//vbo.addAll(0, groups.get(name));
 		}
+		
 		float[] buf = new float[vbo.size()];
 		for (int i = 0; i < vbo.size(); ++i) {
 			buf[i] = vbo.get(i);
 		}
-		return buf;
+		return buf;*/
 	}
 	
 	public int getGroupSize(String groupName) {
-		return groups.get(groupName).size();
+		return groups.get(groupName).length;
 	}
 	
 	public Set<String> getGroupNames() {
@@ -185,22 +225,19 @@ public class Model {
 	// WARNING! if arguments are not equal, IT BREAKS NORMALS!!! 
 	// if you implement fixing normals, you can make it public 
 	private void scale(float kx, float ky, float kz) {
-		for (Entry<String, List<Float>> e: groups.entrySet()) {
-			List<Float> newList = new ArrayList<Float>();
-			int idx = 0;
-			for (Float f: e.getValue()) {
-				if (idx % 9 == 0) {
-					newList.add(f * kx);
-				} else if (idx % 9 == 1) {
-					newList.add(f * ky);
-				} else if (idx % 9 == 2) {
-					newList.add(f * kz);
+		for (Entry<String, float[]> e: groups.entrySet()) {
+			float[] arr = e.getValue();
+			for (int i = 0; i < arr.length; ++i) {
+				if (i % 9 == 0) {
+					arr[i] *= kx;
+				} else if (i % 9 == 1) {
+					arr[i] *= ky;
+				} else if (i % 9 == 2) {
+					arr[i] *= kz;
 				} else {
-					newList.add(f);
+					// pass
 				}
-				++idx;
 			}
-			groups.put(e.getKey(), newList);
 		}
 	}
 	
@@ -208,7 +245,7 @@ public class Model {
 	public float[] getModelDimensions() {
 		float[] dimensions = new float[] {Float.MAX_VALUE, Float.MIN_VALUE, Float.MAX_VALUE,
 				Float.MIN_VALUE, Float.MAX_VALUE, Float.MIN_VALUE};
-		for (Entry<String, List<Float>> e: groups.entrySet()) {
+		for (Entry<String, float[]> e: groups.entrySet()) {
 			float minx = Float.MIN_VALUE, maxx, miny, maxy, minz, maxz;
 			int idx = 0;
 			for (Float f: e.getValue()) {
@@ -228,6 +265,6 @@ public class Model {
 		return dimensions;
 	}
 
-	private final Map<String, List<Float>> groups;
+	private final Map<String, float[]> groups;
 	private final Integer totalSize;
 }

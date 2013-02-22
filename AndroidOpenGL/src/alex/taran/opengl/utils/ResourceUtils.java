@@ -1,9 +1,14 @@
 package alex.taran.opengl.utils;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,6 +16,7 @@ import java.util.List;
 import alex.taran.opengl.AndroidOpenGLActivity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.media.MediaScannerConnection;
 import android.util.Log;
 
 public class ResourceUtils {
@@ -50,5 +56,22 @@ public class ResourceUtils {
 		InputStream fileInput = res.openRawResource(id);
 		Log.i("FUCK", "Input stream opened! returning ..." + fileInput);
 		return fileInput;
+	}
+	
+	public static void saveObjectToExternalStorage(Context context, Serializable obj, String filename) {
+		File root = android.os.Environment.getExternalStorageDirectory(); 
+		File myFolder = new File(root, "PicWorld");
+		myFolder.mkdir();
+		File file = new File(myFolder, filename);
+		try {
+			FileOutputStream f = new FileOutputStream(file);
+			ObjectOutputStream os = new ObjectOutputStream(f);
+			os.writeObject(obj);
+			os.close();
+			f.close();
+		} catch (Exception e) {
+			Log.e("FUCK", "Exception while saving serialized object to file! " + e.getMessage());
+		}
+		MediaScannerConnection.scanFile(context, new String[]{file.getAbsolutePath()}, null, null);
 	}
 }
