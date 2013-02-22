@@ -1,7 +1,6 @@
 package alex.taran.opengl;
 
 import java.util.ArrayList;
-
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -86,11 +85,12 @@ public class MyRenderer implements Renderer {
 		float camposy = (float)(cameraRadius * Math.sin(cameraTheta));
 		float camposz = (float)(cameraRadius * Math.cos(cameraTheta) * Math.sin(cameraPhi));
 		
-		/*float mvMatrix[] = new float[16];
-		float viewMatrix[] = new float[16];
-		float modelMatrix[] = new float[16];
-		float perspectiveMatrix[] = new float[16];
-		float orthoMatrix[] = new float[16];*/
+		float camrightx = -(float) Math.sin(cameraPhi);
+		float camrightz = (float) Math.cos(cameraPhi);
+		
+		float camupx = - camposy * camrightz;
+		float camupy = - camposz * camrightx + camposx * camrightz;
+		float camupz = + camposy * camrightx;
 		
 		Matrix4 mvMatrix = new Matrix4();
 		Matrix4 viewMatrix = new Matrix4();
@@ -106,7 +106,7 @@ public class MyRenderer implements Renderer {
 		GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 		skyboxShader.use();
 		buffers.bind("cquad", GLES20.GL_ARRAY_BUFFER);
-		viewMatrix.setLookAt(0.0f, 0.0f, 0.0f, -camposx, -camposy, -camposz, 0.0f, 1.0f, 0.0f);
+		viewMatrix.setLookAt(0.0f, 0.0f, 0.0f, -camposx, -camposy, -camposz, camupx, camupy, camupz);
 		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("view_matrix"), 1, false, viewMatrix.data, 0);
 		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("projection_matrix"), 1, false, perspectiveMatrix.data, 0);
 		skyboxShader.enableVertexAttribArray("pos");
@@ -133,13 +133,23 @@ public class MyRenderer implements Renderer {
 		modelMatrix.setIdentity().rotate(90.0f, 0.0f, 1.0f, 0.0f).translate(0.0f, 0.0f, -0.5f).scale(1.0f, -1.0f, 1.0f);
 		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
 		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+		// NY
+		textures.bind("skybox_ny");
+		modelMatrix.setIdentity().rotate(90.0f,-1.0f, 0.0f,0.0f).rotate(90.0f, 0.0f, 0.0f,-1.0f).translate(0.0f, 0.0f, -0.5f).scale(1.0f, -1.0f, 1.0f);
+		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+		// PY
+		textures.bind("skybox_py");
+		modelMatrix.setIdentity().rotate(90.0f, 1.0f, 0.0f, 0.0f).translate(0.0f, 0.0f, -0.5f).scale(1.0f, -1.0f, 1.0f);
+		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
 		
 		textures.unbind();
 		buffers.unBind(GLES20.GL_ARRAY_BUFFER);
 		skyboxShader.unUse();
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		
-		viewMatrix.setLookAt(camposx, camposy, camposz, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+		viewMatrix.setLookAt(camposx, camposy, camposz, 0.0f, 0.0f, 0.0f, camupx, camupy, camupz);
 		
 		// BASIS
 		simpleShader.use();
@@ -326,12 +336,12 @@ public class MyRenderer implements Renderer {
 		textures.load("command_run_a", R.drawable.command_run_a);
 		textures.load("command_run_b", R.drawable.command_run_b);
 		
-		textures.load("skybox_px", R.drawable.fronthot);
-		textures.load("skybox_nx", R.drawable.backhot);
-		textures.load("skybox_pz", R.drawable.righthot);
-		textures.load("skybox_nz", R.drawable.lefthot);
-		textures.load("skybox_py", R.drawable.tophot);
-		textures.load("skybox_ny", R.drawable.bothot);
+		textures.load("skybox_px", R.drawable.fronthot, true);
+		textures.load("skybox_nx", R.drawable.backhot, true);
+		textures.load("skybox_pz", R.drawable.righthot, true);
+		textures.load("skybox_nz", R.drawable.lefthot, true);
+		textures.load("skybox_py", R.drawable.tophot, true);
+		textures.load("skybox_ny", R.drawable.bothot, true);
 		
 		Log.d("FUCK", "Start loading textures");
 		textures.load("bricks", R.drawable.bricks);

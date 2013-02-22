@@ -1,22 +1,17 @@
 package alex.taran.opengl.utils;
 
 import java.util.HashMap;
-
 import java.util.Map;
-import java.util.Map.Entry;
-
-import javax.microedition.khronos.opengles.GL10;
 
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.opengl.GLU;
-import android.opengl.GLUtils;
 import android.opengl.GLES20;
+import android.opengl.GLUtils;
 import android.util.Log;
 
 public class TextureHolder extends Holder{
-	private int[] temp = new int[1]; // for temporary tex ID
+	private int[] temp = new int[1]; // for temporary texture ID
 	private Map<String,Integer> textures = new HashMap<String,Integer>();
 	
 	public TextureHolder(Context theContext){
@@ -34,7 +29,11 @@ public class TextureHolder extends Holder{
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, 0);
 	}
 	
-	public void load(String s,int resId){
+	public void load(String s,int resId) {
+		load(s,resId, false);
+	}
+	
+	public void load(String s,int resId, boolean clamping) {
 		delete(s);
 		Bitmap bitmap = null;
 		Log.d("FUCK", "trying to load texture "+s+" from R.id = "+resId);
@@ -44,13 +43,15 @@ public class TextureHolder extends Holder{
 			Log.e("FUCK", "Error while loading texture "+s+" from R.id = "+resId);
 		}
 		
-		// создаем текстуру и биндим
 		GLES20.glGenTextures(1, temp, 0);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, temp[0]);
-		// настраиваем параметры текстуры
 		GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
 		GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
 		GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+		if (clamping) {
+			GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S,GLES20.GL_CLAMP_TO_EDGE);
+		    GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,GLES20.GL_CLAMP_TO_EDGE);
+		}
 		GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
 		
 		bitmap.recycle();

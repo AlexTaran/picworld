@@ -10,6 +10,7 @@ import android.view.MotionEvent;
 public class SimpleHUD implements HUD {	
 	
 	public SimpleHUD(int[] capacities) {
+		this.elements = new ArrayList<HUDElement>();
 		this.capacities = capacities.clone();		
 		this.confirmedSlots = new ArrayList<ArrayList<HUDDraggableElement>>();
 		this.commands = new ArrayList<ArrayList<Command>>();
@@ -295,8 +296,6 @@ public class SimpleHUD implements HUD {
 	private ArrayList<ArrayList<HUDDraggableElement>> confirmedSlots;
 	private ArrayList<ArrayList<HUDDraggableElement>> tmpSlots;
 	
+	@SuppressWarnings(value = {"unused"})
 	private static final long serialVersionUID = -1610354679438821198L;
-
-
-
 }
