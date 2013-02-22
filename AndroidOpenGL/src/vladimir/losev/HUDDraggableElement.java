@@ -2,20 +2,20 @@ package vladimir.losev;
 
 
 public class HUDDraggableElement extends HUDElement {
-	public HUDDraggableElement(float left, float top, float right, float bottom, Command command, boolean isInSlot) {
+	public HUDDraggableElement(float left, float top, float right, float bottom, Command command, int[] slot) {
 		super(left, top, right, bottom);
 		this.command = command;
-		this.isInSlot = isInSlot;
+		this.slot = slot;
 	}
 
-	public HUDDraggableElement(HUDElement e, Command command, boolean isInSlot) {
+	public HUDDraggableElement(HUDElement e, Command command, int[] slot) {
 		super(e);
 		this.command = command;
-		this.isInSlot = isInSlot;
+		this.slot = slot;
 	}
 
 	public HUDDraggableElement(HUDDraggableElement e) {
-		this(e, e.command, e.isInSlot);
+		this(e, e.command, e.slot);
 	}
 
 	
@@ -30,5 +30,5 @@ public class HUDDraggableElement extends HUDElement {
 	}
 	
 	public Command command;
-	public boolean isInSlot;
+	public int[] slot;
 }

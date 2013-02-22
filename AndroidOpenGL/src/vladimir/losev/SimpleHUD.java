@@ -1,7 +1,6 @@
 package vladimir.losev;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import vladimir.losev.HUDDraggableElement.Command;
 import android.graphics.RectF;
@@ -14,74 +13,65 @@ public class SimpleHUD extends ArrayList<HUDElement> implements HUD {
 		this.capacities = capacities.clone();
 		
 		// OMFG!!! Sometimes I do hate Java
-		this.slots = new ArrayList<ArrayList<HUDDraggableElement>>();
+		this.confimedSlots = new ArrayList<ArrayList<HUDDraggableElement>>();
 		for (int i = 0; i < capacities.length; ++i) {
 			ArrayList<HUDDraggableElement> slotGroup = new ArrayList<HUDDraggableElement>();
 			for (int j = 0; j < capacities[i]; ++j) {
 				slotGroup.add(null);
-			}
-			
-			this.slots.add(slotGroup);			
+			}		
+			this.confimedSlots.add(slotGroup);			
 		}
-		
-		//elements = Collections.synchronizedList(new ArrayList<HUDElement>());
-		elements = this;
+		this.tmpSlots= new ArrayList<ArrayList<HUDDraggableElement>>(this.confimedSlots);		
 	}
 	
 	public void init(float screenWidth, float screenHeight) {
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
 		
-		this.elementZoneSize = screenWidth / 4 / SLOT_GROUP_WIDTH;
-		this.elementSize   = this.elementZoneSize * 0.8f;
-		this.elementMargin = this.elementZoneSize * 0.1f;
+		this.elementSize = screenWidth / 4 / SLOT_GROUP_WIDTH;
 		
-		this.elements.clear();
+		clear();
 		
 		// Creating static elements to where you can drag elements
 		float xOffset = screenWidth * 0.75f;
-		float yOffset = elementZoneSize;
+		float yOffset = elementSize;
 		float x = 0;
 		float y = 0;
 		
-		for (int capacity : capacities) {
-			for (int i = 0; i < capacity; ++i) {			
-				x = xOffset + elementZoneSize * (i % 5);
-				y = yOffset + elementZoneSize * (i / 5);
+		for (int i = 0; i < capacities.length; ++i) {
+			int capacity = capacities[i];
+			for (int j = 0; j < capacity; ++j) {			
+				x = xOffset + elementSize * (j % 5);
+				y = yOffset + elementSize * (j / 5);
 				
 				HUDSlotElement newSlot = new HUDSlotElement(x, y, x + elementSize, y + elementSize);
-				elements.add(newSlot);
+				newSlot.group = i;
+				newSlot.index = j;
+				add(newSlot);
 			}
 			yOffset +=  elementSize *  (2 + (capacity - 1) / 5);
 		}
 		// Creating panel from where you can drag elements
-		x = elementMargin;
+		x = 0;
 		y = elementMargin;
 		
-		elements.add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.LEFT, false));
-		x += elementZoneSize;
-		elements.add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.FORWARD, false));
-		x += elementZoneSize;
-		elements.add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.RIGHT, false));
-		x += elementZoneSize;
-		elements.add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.LIGHT, false));
-		x += elementZoneSize;
-		elements.add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.RUN_A, false));
-		x += elementZoneSize;
-		elements.add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.RUN_B, false));
-		
-		
+		add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.LEFT, null));
+		x += elementSize;
+		add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.FORWARD, null));
+		x += elementSize;
+		add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.RIGHT, null));
+		x += elementSize;
+		add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.LIGHT, null));
+		x += elementSize;
+		add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.RUN_A, null));
+		x += elementSize;
+		add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.RUN_B, null));
 	}	
 
-	@Override
-	public synchronized HUDElement get(int index) {
-		return super.get(index);
-	}
 		
 	@Override
 	public void update(long time) {
 		this.currTime = time;
-		Log.d("Time", "ct="+time);
 		for (HUDElement element : this) {
 			element.update(time);
 		}
@@ -125,43 +115,112 @@ public class SimpleHUD extends ArrayList<HUDElement> implements HUD {
 	
 	private void startDragging(HUDDraggableElement element, float x, float y) {
 		draggedElement = element;
-		originalPos = new RectF(element);
 		elementOffsetX = element.left - x;
 		elementOffsetY = element.top  - y;
+		originalPos = new RectF(element);
+		
 		element.animator = null;
+		
+		tmpSlots = new ArrayList<ArrayList<HUDDraggableElement>>(confimedSlots);
+	
+		int[] gi = draggedElement.slot;
+		if (gi != null) {
+			tmpSlots.get(gi[0]).set(gi[1], null);
+		}
 	}
-
 	
 	private void continueDragging(float x, float y) {
 		draggedElement.offsetTo(x + elementOffsetX, y + elementOffsetY);
 		float centerX = draggedElement.centerX();
 		float centerY = draggedElement.centerY();
+		int[] gi;
 		
-		// Fitting into slots
-		for (HUDElement element : this) {
-			if (element instanceof HUDSlotElement && element.contains(centerX, centerY)) {	
-				HUDSlotElement se = ((HUDSlotElement) element);
-				ArrayList<HUDElement> shiftedPositions = shift(se.group, se.index);
-				
-				for (int i = 0; i < shiftedPositions.size(); ++i) {
-					HUDElement inSlotElement = shiftedPositions.get(i);
-					if (inSlotElement != null) {
-						float left = screenWidth * 0.75f + elementZoneSize * (i % 5);
-						float top = elementZoneSize * (1 + i / 5);
-						RectF endPos = new RectF(left, top, left + elementSize, top + elementSize);
+		if (null != (gi = findGroupAndIndex(centerX, centerY))) {
+			shift(tmpSlots.get(gi[0]), gi[1]);
+			Log.i("Fuck", tmpSlots.get(0).toString());	
+		}
+		
+		// TODO(losik): add support for multiple slotGroup
+		animateSlotElements(tmpSlots.get(0), 0);
 
-						inSlotElement.animator = new HUDLinearAnimator(new RectF(inSlotElement), endPos, currTime, currTime);
-					}
-				}
+
+	}
+	
+	private void onReleaseDragging() {
+		float centerX = draggedElement.centerX();
+		float centerY = draggedElement.centerY();
+		int[] gi;
+		
+		// If element is over some slot
+		if (null != (gi = findGroupAndIndex(centerX, centerY))) {
+			if (draggedElement.slot == null) {
+				HUDDraggableElement elem = new HUDDraggableElement(draggedElement);
+				elem.set(originalPos);
+				add(elem);
+			}
+
+			if (shift(tmpSlots.get(gi[0]), gi[1])) {
+				confimedSlots.set(gi[0], tmpSlots.get(gi[0]));
+				confimedSlots.get(gi[0]).set(gi[1], draggedElement);
+				draggedElement.slot = gi;
+			}
+		} else if (draggedElement.slot != null) {
+			confimedSlots = new ArrayList<ArrayList<HUDDraggableElement>>(tmpSlots);
+			draggedElement.slot = null;
+			remove(draggedElement);
+		}
+		
+		draggedElement.animator = new HUDLinearAnimator(new RectF(draggedElement) , originalPos, currTime, currTime + ANIMATION_TIME_MILLS);
+		draggedElement = null;
+		
+		// TODO(losik): add support for multiple slotGroup
+		animateSlotElements(confimedSlots.get(0), 0);
+		for (int i = 0; i < confimedSlots.get(0).size(); ++i) {
+			if (confimedSlots.get(0).get(i) != null) {
+				confimedSlots.get(0).get(i).slot[1] = i;
 			}
 		}
+		tmpSlots = null;
 	}
 	
 	
+	private void animateSlotElements(ArrayList<HUDDraggableElement> positions, float offsetTop) {
+		for (int i = 0; i < positions.size(); ++i) {
+			HUDDraggableElement inSlotElement = positions.get(i);
+			if (inSlotElement != null) {
+				float left = screenWidth * 0.75f + elementSize * (i % 5);
+				float top = offsetTop + elementSize * (1 + i / 5);
+				RectF endPos = new RectF(left, top, left + elementSize, top + elementSize);
+				
+				// TODO(losik): do not rely on animators here
+				if (inSlotElement.animator == null || !((HUDLinearAnimator) inSlotElement.animator).endPos.equals(endPos)) {
+					inSlotElement.animator = new HUDLinearAnimator(new RectF(inSlotElement), endPos, currTime, currTime + ANIMATION_TIME_MILLS);
+				}
+			}
+		}
+		
+	}
+	
+	
+	private int[] findGroupAndIndex(float centerX, float centerY) {
+		for (HUDElement element : this) {
+			if (element instanceof HUDSlotElement && 
+				element.contains(centerX, centerY)) 
+			{	
+				HUDSlotElement se = ((HUDSlotElement) element);
+				return new int[] {se.group, se.index};
+			}
+		}
+		
+		return null;
+	}
+	
 	/**	 */
-	private ArrayList<HUDElement> shift(int group, int slot) {
-		ArrayList<HUDElement> slotGroup = new ArrayList<HUDElement>(slots.get(group));
-
+	private boolean shift(ArrayList<HUDDraggableElement> slotGroup, int slot) {
+		if (slotGroup.get(slot) == null) {
+			return true;
+		}
+		
 		// TODO(losik): implement different prefered directions shifting
 		// Searching for empty slots
 		int nullIndex = -1;
@@ -174,101 +233,33 @@ public class SimpleHUD extends ArrayList<HUDElement> implements HUD {
 
 		// No free space left in given slot group
 		if (nullIndex < 0) {
-			return null;
+			return false;
 		}
 
 		if (nullIndex < slot) {
-			for (int i = slot; i < group; ++i) {
+			for (int i = nullIndex; i < slot; ++i) {
 				slotGroup.set(i, slotGroup.get(i + 1));
 			}
 		} else {
-			for (int i = slot; i > group; --i) {
+			for (int i = nullIndex; i > slot; --i) {
 				slotGroup.set(i, slotGroup.get(i - 1));
 			}
 		}
-
-		return slotGroup;
+		slotGroup.set(slot, null);
+		
+		return true;
 	}	
 	
 	
-	private boolean onReleaseDragging() {
-		float centerX = draggedElement.centerX();
-		float centerY = draggedElement.centerY();
-		RectF startPos = new RectF(draggedElement);
-		RectF endPos   = new RectF(originalPos); 
-
-		// Fitting into slots
-		for (HUDElement element : this) {
-			if (!(element instanceof HUDSlotElement)) {
-				continue;
-			}
-			
-			HUDSlotElement se = ((HUDSlotElement) element);
-			if (se.contains(centerX, centerY)) {
-				// Creating new element instead of the used one
-				if (!draggedElement.isInSlot) {
-					draggedElement.isInSlot = true;
-					HUDDraggableElement de = new HUDDraggableElement(draggedElement);
-					de.set(originalPos);
-					de.isInSlot = false;
-					elements.add(de);
-				}
 	
-				slots.get(se.group).set(se.index, draggedElement);
-				
-				endPos = new RectF(se); 
-				draggedElement.animator = new HUDLinearAnimator(startPos , endPos, currTime, currTime + 100);
-				draggedElement = null;
-				return true;
-			}			
-		}
-		
-		
-		if (!draggedElement.isInSlot) {
-			draggedElement.animator = new HUDLinearAnimator(startPos , endPos, currTime, currTime + 100);
-		} else {
-			elements.remove(draggedElement);
-		}
-		draggedElement = null;
-		return true;			
-	}
-	
-	
-	/*private ArrayList<HUDElement> getSlotId(float x, float y)  {
-	  if (x < offsetX) return null;
-	  
-	  int xIndex = (int) ((x - offsetX) / elementZoneSize);
-	  int yIndex = 0;
-	  
-	  for (int capacity : capacities) {
-		  capacity / SLOT_GROUP_WIDTH;
-	  }
-	  
-	  return null;
-	  
-	  /*
-	   * 	  if (x - offsetX < 0) return null;
-	  
-	  int globalXIndex = (int)((x - offsetX) / elementZoneSize);
-	  int globalYIndex = (int)(y / elementZoneSize);
-
-	  for (int slotGroupIndex = 0; int capacity : capacities) {
-		  // MAGIC HAPENS HERE
-		  int heightIndex = (int)(capacity + SLOT_GROUP_WIDTH - 2) / SLOT_GROUP_WIDTH;
-		  if (globalYIndex < heightIndex) {
-			  
-		  } 
-	  }
-	  
-	  return null;
-	}*/
-	
-	private List<HUDElement> elements;
-	private ArrayList<ArrayList<HUDDraggableElement>> slots;
+	private ArrayList<ArrayList<HUDDraggableElement>> confimedSlots;
+	private ArrayList<ArrayList<HUDDraggableElement>> tmpSlots;
 	
 	private final int SLOT_GROUP_WIDTH = 5;
+	private final int ANIMATION_TIME_MILLS = 100;
 	
 	private HUDDraggableElement draggedElement = null;
+
 	private float elementOffsetX;
 	private float elementOffsetY;
 	private RectF originalPos;
@@ -276,9 +267,6 @@ public class SimpleHUD extends ArrayList<HUDElement> implements HUD {
 	long currTime;
 	private int[] capacities;
 	
-	private float offsetX;
-	private float offsetY;
-	private float elementZoneSize;
 	private float elementSize;
 	private float elementMargin;
 	private float screenWidth;

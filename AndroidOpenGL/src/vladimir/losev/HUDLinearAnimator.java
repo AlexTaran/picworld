@@ -20,7 +20,6 @@ public class HUDLinearAnimator implements HUDElementAnimator {
 			element.set(endPos);
 		} else {
 			float t = 1f * (time - startTime) / duration;
-			Log.d("Time", "ct="+time + " t="+t + " d="+duration);
 			element.left   = (1 - t) * startPos.left   + t * endPos.left;
 			element.right  = (1 - t) * startPos.right  + t * endPos.right;
 			element.top    = (1 - t) * startPos.top    + t * endPos.top;
@@ -28,8 +27,8 @@ public class HUDLinearAnimator implements HUDElementAnimator {
 		}
 	}	
 	
-	protected RectF startPos;
-	protected RectF endPos;
+	public RectF startPos;
+	public RectF endPos;
 	protected long startTime;
 	protected long endTime;
 	protected long duration;

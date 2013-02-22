@@ -1,18 +1,14 @@
 package alex.taran.opengl;
 
-import java.util.EmptyStackException;
-
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import vladimir.losev.HUDDraggableElement;
-import vladimir.losev.HUDDraggableElement.Command;
 import vladimir.losev.HUDElement;
 import vladimir.losev.HUDSlotElement;
 import vladimir.losev.SimpleHUD;
 import alex.taran.opengl.model.Model;
 import alex.taran.opengl.utils.GLBuffers;
-import alex.taran.opengl.utils.MatrixUtils;
 import alex.taran.opengl.utils.Shader;
 import alex.taran.opengl.utils.TextureHolder;
 import alex.taran.opengl.utils.VertexBufferHolder;
@@ -181,7 +177,7 @@ public class MyRenderer implements Renderer {
 					mvMatrix.setProduction(viewMatrix, modelMatrix);
 					GLES20.glUniformMatrix4fv(boxShader.uniformLoc("view_matrix"), 1, false, viewMatrix.data, 0);
 					GLES20.glUniformMatrix4fv(boxShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
-					//GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6 * 6);
+					GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6 * 6);
 				}
 			}
 		}

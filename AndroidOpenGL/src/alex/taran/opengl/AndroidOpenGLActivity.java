@@ -48,7 +48,7 @@ public class AndroidOpenGLActivity extends Activity {
 		Robot initRobot = new Robot();
 		
 		world = new World(gameField, initRobot);
-		programmingUI = new SimpleHUD(new int[] {7,5,11});
+		programmingUI = new SimpleHUD(new int[] {7});//,5,11});
 	}
 	
 	@Override
