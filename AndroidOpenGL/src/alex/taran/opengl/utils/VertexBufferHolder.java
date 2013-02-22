@@ -1,6 +1,7 @@
 package alex.taran.opengl.utils;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.Currency;
 import java.util.HashMap;
@@ -19,18 +20,34 @@ public class VertexBufferHolder extends Holder {
 	public VertexBufferHolder(Context theContext) {
 		super(theContext);
 	}
+	
+	private static FloatBuffer genBuffer(int numFloats) {
+		return ByteBuffer.allocateDirect(numFloats * 4)
+				.order(ByteOrder.nativeOrder()).asFloatBuffer();
+	}
+	
+	private static FloatBuffer genBuffer(float[] values) {
+		FloatBuffer fb = genBuffer(values.length);
+		for (int i = 0; i < values.length; ++i) {
+			fb.put(i, values[i]);
+		}
+		fb.position(0);
+		return fb;
+	}
 
-	public void load(String name, FloatBuffer buf) {
+	public void load(String name, float[] buf) {
 		delete(name);
 		GLES20.glGenBuffers(1, temp, 0);
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, temp[0]);
-		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, buf.capacity() * 4, buf,
+		FloatBuffer fb = genBuffer(buf);
+		GLES20.glBufferData(GLES20.GL_ARRAY_BUFFER, fb.capacity() * 4, fb,
 				GLES20.GL_STATIC_DRAW);
+		fb.clear();
 		GLES20.glBindBuffer(GLES20.GL_ARRAY_BUFFER, 0);
 		buffers.put(name, new BufferInfo(temp[0]));
 	}
 
-	public void load(String name, FloatBuffer buf, Map<String, Integer> offsets) {
+	public void load(String name, float[] buf, Map<String, Integer> offsets) {
 		load(name,buf);
 		BufferInfo bi = buffers.get(name);
 		bi.namedOffsets.putAll(offsets);

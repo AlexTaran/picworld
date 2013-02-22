@@ -356,14 +356,14 @@ public class MyRenderer implements Renderer {
 		skyboxShader = Shader.loadFromResource(context, "skyboxshader");
 	
 		buffers = new VertexBufferHolder(context);
-		buffers.load("basis", GLBuffers.genBuffer(new float[]{
+		buffers.load("basis", new float[]{
 		    	0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 		    	1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 		    	0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 		    	0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
 		    	0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
 		    	0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-		    }));
+		    });
 		buffers.load("quad", GLBuffers.genQuadBuffer(1.0f, 1.0f));
 		buffers.load("cquad", GLBuffers.genCenteredQuadBuffer(0.5f, 0.5f));
 		buffers.load("halfbox", GLBuffers.genBoxBuffer(0.5f, 0.25f, 0.5f), GLBuffers.genBoxBufferNamedOffsets());
@@ -374,7 +374,7 @@ public class MyRenderer implements Renderer {
 		//robot = Model.loadFromAndroidObj(context, "r2d2_obj", 0.08f);
 		//ResourceUtils.saveObjectToExternalStorage(context, robot, "robot.txt");
 		robot = Model.loadSerializedFromStream(ResourceUtils.getInputStreamForRawResource(context, "robot"));
-		buffers.load("r2d2_obj",GLBuffers.genBuffer(robot.genVertexBuffer()), robot.genNamedOffsetForVertexBuffer());
+		buffers.load("r2d2_obj",robot.genVertexBuffer(), robot.genNamedOffsetForVertexBuffer());
 		//Log.d("FUCK", "End loading R2D2. Groups num = " + robot.getGroups().size() + " v = " + .getVertices().size());
 		Log.d("FUCK", "End loading R2D2.");
 	}
