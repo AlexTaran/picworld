@@ -1,5 +1,7 @@
 package alex.taran.opengl;
 
+import java.util.ArrayList;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -44,11 +46,14 @@ public class MyRenderer implements Renderer {
 	private Shader buttonShader;
 	private Shader skyboxShader;
 	
+	private ArrayList<HUDElement> hudElements;
+	
 	public float cameraPhi;
 	public float cameraTheta;
 	public float cameraRadius;
 	
 	public MyRenderer(Context theContext, World world, SimpleHUD programmingUI) {
+		hudElements = new ArrayList<HUDElement>();
 		//rand = new Random(SystemClock.elapsedRealtime());
 
 		context = theContext;
@@ -225,18 +230,19 @@ public class MyRenderer implements Renderer {
 		GLES20.glUniformMatrix4fv(buttonShader.uniformLoc("projection_matrix"), 1, false, orthoMatrix.data, 0);
 		GLES20.glUniformMatrix4fv(buttonShader.uniformLoc("view_matrix"), 1, false, modelMatrix.data, 0);
 		buffers.bind("quad", GLES20.GL_ARRAY_BUFFER);
-		for (HUDElement e: programmingUI.getElements()) {
+		
+		programmingUI.getElements(hudElements);
+		for (HUDElement e: hudElements) {
 			if (e instanceof HUDDraggableElement) {
 				HUDDraggableElement de = (HUDDraggableElement) e;
 				
 				switch (de.command) {
-				case NONE:     textures.bind("empty_slot");      break;
-				case LEFT:     textures.bind("command_left");    break;
-				case RIGHT:    textures.bind("command_right");   break;
-				case FORWARD:  textures.bind("command_forward"); break;
-				case LIGHT:    textures.bind("command_light");   break;
-				case RUN_A:    textures.bind("command_run_a");   break;
-				case RUN_B:    textures.bind("command_run_b");   break;
+				case ROTATE_LEFT:  textures.bind("command_left");    break;
+				case ROTATE_RIGHT: textures.bind("command_right");   break;
+				case MOVE_FORWARD: textures.bind("command_forward"); break;
+				case TOGGLE_LIGHT: textures.bind("command_light");   break;
+				case CALL_A:       textures.bind("command_run_a");   break;
+				case CALL_B:       textures.bind("command_run_b");   break;
 				}
 			} else if (e instanceof HUDSlotElement) {
 				textures.bind("empty_slot");

@@ -1,5 +1,7 @@
 package vladimir.losev;
 
+import alex.taran.picworld.Command;
+
 
 public class HUDDraggableElement extends HUDElement {
 	public HUDDraggableElement(float left, float top, float right, float bottom, Command command, int[] slot) {
@@ -18,16 +20,6 @@ public class HUDDraggableElement extends HUDElement {
 		this(e, e.command, e.slot);
 	}
 
-	
-	public enum Command {
-		NONE,
-		FORWARD,
-		LIGHT,
-		LEFT,
-		RIGHT,
-		RUN_A,
-		RUN_B
-	}
 	
 	public Command command;
 	public int[] slot;

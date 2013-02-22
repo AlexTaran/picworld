@@ -1,12 +1,12 @@
 package vladimir.losev;
 
 
+import java.util.List;
+
 import android.view.MotionEvent;
 
-public interface HUD extends Iterable<HUDElement> {
+public interface HUD {
 	void update(long time);
 	boolean onTouchEvent(MotionEvent m);
-	
-	//HUDElement getTouchedElementsNames(float x, float y);
-	//HUDElement getTouchedElementName(MotionEvent m);
+	public void getElements(List<HUDElement> e);
 }

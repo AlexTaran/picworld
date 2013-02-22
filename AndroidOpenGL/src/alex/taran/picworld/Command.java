@@ -6,7 +6,7 @@ public enum Command {
 	ROTATE_RIGHT,
 	LIGHT_ON,
 	LIGHT_OFF,
-	LIGHT_SWITCH,
+	TOGGLE_LIGHT,
 	CALL_A,
 	CALL_B,
 	JUMP,
