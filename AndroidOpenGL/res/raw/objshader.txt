@@ -50,7 +50,7 @@ void main(){
     vec3 half_vec = normalize(half_vec_);
     vec3 cam_vec = normalize(cam_vec_);
     vec3 refl = reflect(-cam_vec, nrm);
-    float specular = 16.0;
+    float specular = 32.0;
     float diff_koef = max(0.0, dot(nrm, light_dir));
     float spec_koef = pow(max(dot(nrm, half_vec), 0.0), specular);
     //float spec_koef = pow(max(dot(nrm, refl), 0.0), specular);

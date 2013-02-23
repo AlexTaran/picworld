@@ -14,6 +14,7 @@ import alex.taran.picworld.GameField.CellLightState;
 import alex.taran.picworld.Robot;
 import alex.taran.picworld.World;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.media.MediaScannerConnection;
 import android.os.Bundle;
@@ -26,15 +27,21 @@ public class AndroidOpenGLActivity extends Activity {
 	private MyGLSurfaceView glView;
 	private World world;
 	private SimpleHUD programmingUI;
+	private  ActivityManager activityManager;
 	//private GameView gameView;
-	private static Context applicationContext;
+	
+	private static AndroidOpenGLActivity instance;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-	
 		
-		applicationContext = getApplicationContext();
+		instance = this;
+		
+		Log.d("FUCK", "Activity.onCreate memory usage at start: " + getUsedMemorySize());
+		
+		activityManager = (ActivityManager) getApplicationContext().getSystemService(Context.ACTIVITY_SERVICE);
+		Log.d("FUCK", "Application memory class = " + activityManager.getMemoryClass());
 		
 		setTitle("Fuck you, vedroid!");
 		
@@ -82,12 +89,14 @@ public class AndroidOpenGLActivity extends Activity {
 		
 		world = new World(gameField, initRobot);
 		programmingUI = new SimpleHUD(new int[] {7,5,11});
+		
+		Log.d("FUCK", "Activity.onCreate memory usage the end: " + getUsedMemorySize());
 	}
 	
 	@Override
 	public void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		renderer = new MyRenderer(this.getApplicationContext(), world, programmingUI);
+		renderer = new MyRenderer(world, programmingUI);
 		View v = findViewById(R.id.my_view);
 		//Log.e("FUCK", v.toString());
 		glView = (MyGLSurfaceView)v;
@@ -109,6 +118,21 @@ public class AndroidOpenGLActivity extends Activity {
 	};
 	
 	public static Context getContext() {
-		return applicationContext;
+		return instance.getApplicationContext();
+	}
+	
+	public static long getUsedMemorySize() {
+	    long freeSize = 0L;
+	    long totalSize = 0L;
+	    long usedSize = -1L;
+	    try {
+	        Runtime info = Runtime.getRuntime();
+	        freeSize = info.freeMemory();
+	        totalSize = info.totalMemory();
+	        usedSize = totalSize - freeSize;
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	    return usedSize;
 	}
 }

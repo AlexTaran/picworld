@@ -13,7 +13,8 @@ import alex.taran.opengl.utils.GLBuffers;
 import alex.taran.opengl.utils.ResourceUtils;
 import alex.taran.opengl.utils.Shader;
 import alex.taran.opengl.utils.TextureHolder;
-import alex.taran.opengl.utils.VertexBufferHolder;
+import alex.taran.opengl.utils.buffers.BufferOffset;
+import alex.taran.opengl.utils.buffers.VertexBufferHolder;
 import alex.taran.picworld.GameField;
 import alex.taran.picworld.World;
 import alex.taran.utils.Matrix4;
@@ -34,7 +35,6 @@ public class MyRenderer implements Renderer {
 
 	private TextureHolder textures;
 	private VertexBufferHolder buffers;
-	private Context context;
 	private Model robot;
 	
 	private World world;
@@ -52,11 +52,9 @@ public class MyRenderer implements Renderer {
 	public float cameraTheta;
 	public float cameraRadius;
 	
-	public MyRenderer(Context theContext, World world, SimpleHUD programmingUI) {
+	public MyRenderer(World world, SimpleHUD programmingUI) {
 		hudElements = new ArrayList<HUDElement>();
 		//rand = new Random(SystemClock.elapsedRealtime());
-
-		context = theContext;
 		
 		this.world = world;
 		this.programmingUI = programmingUI;
@@ -176,11 +174,11 @@ public class MyRenderer implements Renderer {
 		boxShader.enableVertexAttribArray("tc");
 		GLES20.glUniform3f(boxShader.uniformLoc("cam_pos"), camposx, camposy, camposz);
 		GLES20.glVertexAttribPointer(boxShader.attribLoc("pos"), 3, GLES20.GL_FLOAT, true, 0,
-				buffers.getNamedOffset("halfbox", "vertices"));
+				buffers.getNamedOffset("halfbox", "vertices").offset);
 		GLES20.glVertexAttribPointer(boxShader.attribLoc("nrm"), 3, GLES20.GL_FLOAT, true, 0,
-				buffers.getNamedOffset("halfbox", "normals"));
+				buffers.getNamedOffset("halfbox", "normals").offset);
 		GLES20.glVertexAttribPointer(boxShader.attribLoc("tc"), 2, GLES20.GL_FLOAT, true, 0,
-				buffers.getNamedOffset("halfbox", "texcoords"));
+				buffers.getNamedOffset("halfbox", "texcoords").offset);
 		GLES20.glUniform1i(boxShader.attribLoc("decal"), 0);
 		GLES20.glUniformMatrix4fv(boxShader.uniformLoc("projection_matrix"), 1, false, perspectiveMatrix.data, 0);
 		
@@ -204,7 +202,6 @@ public class MyRenderer implements Renderer {
 		// ROBOT
 		
 		objShader.use();
-		buffers.bind("r2d2_obj", GLES20.GL_ARRAY_BUFFER);
 		textures.bind("r2d2_png");
 		objShader.enableVertexAttribArray("pos");
 		objShader.enableVertexAttribArray("nrm");
@@ -217,11 +214,13 @@ public class MyRenderer implements Renderer {
 		modelMatrix.setIdentity().translate(0.0f, 0.8f, 0.0f);
 		GLES20.glUniformMatrix4fv(objShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
 		for (String s: robot.getGroupNames()) {
-			int basePos = buffers.getNamedOffset("r2d2_obj", s);
+			buffers.bind("r2d2_obj::" + s, GLES20.GL_ARRAY_BUFFER);
+			int basePos = 0;
 			GLES20.glVertexAttribPointer(objShader.attribLoc("pos"), 3, GLES20.GL_FLOAT, true, 3 * 3 * 4, basePos);
 			GLES20.glVertexAttribPointer(objShader.attribLoc("tc"),  3, GLES20.GL_FLOAT, true, 3 * 3 * 4, basePos + 3 * 4);
 			GLES20.glVertexAttribPointer(objShader.attribLoc("nrm"), 3, GLES20.GL_FLOAT, true, 3 * 3 * 4, basePos + 2 * 3 * 4);
-			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, robot.getGroupSize(s) / 9);
+			BufferOffset ofs = buffers.getNamedOffset("r2d2_obj::" + s, "idx");
+			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, ofs.size);
 		}
 		
 		textures.unbind();
@@ -260,11 +259,11 @@ public class MyRenderer implements Renderer {
 			
 			GLES20.glVertexAttribPointer(buttonShader.attribLoc("pos"), 2, GLES20.GL_FLOAT, true, 0, 0);
 			GLES20.glVertexAttribPointer(buttonShader.attribLoc("tc"),  2, GLES20.GL_FLOAT, true, 0, 0);
-      modelMatrix.setIdentity().translate(e.left, e.top, 0.0f);
+			modelMatrix.setIdentity().translate(e.left + e.width() * 0.1f, e.top + e.height() * 0.1f, 0.0f);
 			//if (de.isInSlot) {
 			//	Matrix.translateM(modelMatrix, 0, 0.0f, 0.0f, -0.1f);
 			//}
-			modelMatrix.scale(e.height(), e.width(), 1.0f);
+			modelMatrix.scale(e.height() * 0.8f, e.width() * 0.8f, 1.0f);
 			GLES20.glUniformMatrix4fv(buttonShader.uniformLoc("model_matrix"), 1, false, modelMatrix.data, 0);
 			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
 		}
@@ -323,8 +322,8 @@ public class MyRenderer implements Renderer {
 		//GLES20.glHint(GLES20.GL_PGL_PERSPECTIVE_CORRECTION_HINT, GLES20.GL_NICEST);
 		//GLES20.glPointSize(16.0f);
 		GLES20.glEnable(GLES20.GL_TEXTURE_2D);
-
-		textures = new TextureHolder(context);
+		Log.d("FUCK", "Initial memory usage: " + AndroidOpenGLActivity.getUsedMemorySize());
+		textures = new TextureHolder();
 		textures.load("icon_scaling", R.drawable.icon_scaling);
 		textures.load("icon_select", R.drawable.icon_select);
 		textures.load("icon_go", R.drawable.icon_go);
@@ -343,19 +342,19 @@ public class MyRenderer implements Renderer {
 		textures.load("skybox_py", R.drawable.tophot, true);
 		textures.load("skybox_ny", R.drawable.bothot, true);
 		
-		Log.d("FUCK", "Start loading textures");
 		textures.load("bricks", R.drawable.bricks);
 		textures.load("floor", R.drawable.floor);
 		textures.load("mix", R.drawable.mix);
-		Log.d("FUCK", "End loading textures");
+		System.gc();
+		Log.d("FUCK", "Memory usage after loading textures: " + AndroidOpenGLActivity.getUsedMemorySize());
 		
-		simpleShader = Shader.loadFromResource(context, "simpleshader");
-		boxShader = Shader.loadFromResource(context, "boxshader");
-		objShader = Shader.loadFromResource(context, "objshader");
-		buttonShader = Shader.loadFromResource(context, "buttonshader");
-		skyboxShader = Shader.loadFromResource(context, "skyboxshader");
+		simpleShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "simpleshader");
+		boxShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "boxshader");
+		objShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "objshader");
+		buttonShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "buttonshader");
+		skyboxShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "skyboxshader");
 	
-		buffers = new VertexBufferHolder(context);
+		buffers = new VertexBufferHolder();
 		buffers.load("basis", new float[]{
 		    	0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
 		    	1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
@@ -373,10 +372,16 @@ public class MyRenderer implements Renderer {
 		//r2d2 = new WavefrontObject("r2d2_obj");
 		//robot = Model.loadFromAndroidObj(context, "r2d2_obj", 0.08f);
 		//ResourceUtils.saveObjectToExternalStorage(context, robot, "robot.txt");
-		robot = Model.loadSerializedFromStream(ResourceUtils.getInputStreamForRawResource(context, "robot"));
-		buffers.load("r2d2_obj",robot.genVertexBuffer(), robot.genNamedOffsetForVertexBuffer());
-		//Log.d("FUCK", "End loading R2D2. Groups num = " + robot.getGroups().size() + " v = " + .getVertices().size());
+		
+		robot = Model.loadSerializedFromStream(ResourceUtils.getInputStreamForRawResource(AndroidOpenGLActivity.getContext(), "robot"));
+		robot.cleanup();
+		for (String s: robot.getGroupNames()) {
+			float[] vb = robot.getGroupVertexBuffer(s);
+			buffers.load("r2d2_obj::" + s, vb, robot.genBufferOffsets(s));
+		}
+		robot.deleteData();
 		Log.d("FUCK", "End loading R2D2.");
+		Log.d("FUCK", "Memory usage after loading all: " + AndroidOpenGLActivity.getUsedMemorySize());
 	}
 
 	public int getFPS() {

@@ -15,6 +15,7 @@ import java.util.Random;
 import java.util.Set;
 
 import alex.taran.opengl.utils.ResourceUtils;
+import alex.taran.opengl.utils.buffers.BufferOffset;
 import android.content.Context;
 import android.util.Log;
 
@@ -25,6 +26,10 @@ public class Model implements Serializable {
 		this.groups = new HashMap<String, float[]>();
 		int sum = 0;
 		for (Entry<String,List<Float> > e : groups.entrySet()) {
+			if (e.getValue().size() == 0) {
+				continue;
+			}
+			Log.d("FUCK", "Loading buffer of size: " + e.getValue().size());
 			sum += e.getValue().size();
 			float[] arr = new float[e.getValue().size()];
 			for (int i = 0; i < e.getValue().size(); ++i) {
@@ -159,6 +164,7 @@ public class Model implements Serializable {
 			ObjectInputStream ois = new ObjectInputStream(is);
 			Model mdl = (Model)ois.readObject();
 			Log.d("FUCK", "Model loaded. Number of groups: " + mdl.groups.size());
+			ois.close();
 			return mdl;
 		} catch (Exception e) {
 			Log.d("FUCK", "Error in deserialization of Model from stream" + e.getMessage());
@@ -191,19 +197,10 @@ public class Model implements Serializable {
 			}
 		}
 		return buf;
-		/*
-		List<Float> vbo = new ArrayList<Float>();
-		
-		for (String name : groups.keySet()) {
-			vbo.addAll(groups.get(name));
-			//vbo.addAll(0, groups.get(name));
-		}
-		
-		float[] buf = new float[vbo.size()];
-		for (int i = 0; i < vbo.size(); ++i) {
-			buf[i] = vbo.get(i);
-		}
-		return buf;*/
+	}
+	
+	public float[] getGroupVertexBuffer(String s) {
+		return groups.get(s);
 	}
 	
 	public int getGroupSize(String groupName) {
@@ -263,6 +260,28 @@ public class Model implements Serializable {
 			}
 		}
 		return dimensions;
+	}
+	
+	public void cleanup() {
+		// .toArray() is just to copy the set and avoid ConcurrentModificationException
+		for (Object s: groups.keySet().toArray()) {
+			if (((float[])groups.get(s)).length == 0) {
+				groups.remove(s);
+			}
+		}
+	}
+	
+	public void deleteData() {
+		for (String s: groups.keySet()) {
+			groups.put(s, null);
+		}
+	}
+	
+	public Map<String, BufferOffset> genBufferOffsets(String s) {
+		Map<String, BufferOffset> offsets = new HashMap<String, BufferOffset>();
+		float[] buf = groups.get(s);
+		offsets.put("idx", new BufferOffset(9, buf.length / 9));
+		return offsets;
 	}
 
 	private final Map<String, float[]> groups;

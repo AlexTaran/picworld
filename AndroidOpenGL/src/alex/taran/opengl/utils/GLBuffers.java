@@ -6,6 +6,7 @@ import java.nio.FloatBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import alex.taran.opengl.utils.buffers.BufferOffset;
 import android.graphics.PointF;
 
 public class GLBuffers {
@@ -179,11 +180,11 @@ public class GLBuffers {
 		return data;
 	}
 	
-	public static Map<String, Integer> genBoxBufferNamedOffsets() {
-		Map<String, Integer> offsets = new HashMap<String, Integer>();
-		offsets.put("vertices", 0);
-		offsets.put("texcoords", 3 * 4 * 36);
-		offsets.put("normals", 3 * 4 * 36 + 2 * 4 * 36);
+	public static Map<String, BufferOffset> genBoxBufferNamedOffsets() {
+		Map<String, BufferOffset> offsets = new HashMap<String, BufferOffset>();
+		offsets.put("vertices", new BufferOffset(0, 3 * 4 * 36));
+		offsets.put("texcoords", new BufferOffset(3 * 4 * 36, 2 * 4 * 36));
+		offsets.put("normals", new BufferOffset(3 * 4 * 36 + 2 * 4 * 36, 3 * 4 * 36));
 		return offsets;
 	}
 }

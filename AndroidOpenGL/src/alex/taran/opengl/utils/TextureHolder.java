@@ -3,6 +3,7 @@ package alex.taran.opengl.utils;
 import java.util.HashMap;
 import java.util.Map;
 
+import alex.taran.opengl.AndroidOpenGLActivity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,8 +15,8 @@ public class TextureHolder extends Holder{
 	private int[] temp = new int[1]; // for temporary texture ID
 	private Map<String,Integer> textures = new HashMap<String,Integer>();
 	
-	public TextureHolder(Context theContext){
-		super(theContext);
+	public TextureHolder() {
+		super();
 	}
 	
 	public void bind(String s){
@@ -36,11 +37,11 @@ public class TextureHolder extends Holder{
 	public void load(String s,int resId, boolean clamping) {
 		delete(s);
 		Bitmap bitmap = null;
-		Log.d("FUCK", "trying to load texture "+s+" from R.id = "+resId);
+		//Log.d("FUCK", "trying to load texture " + s + " from R.id = " + resId);
 		try {
-			bitmap = BitmapFactory.decodeResource(context.getResources(),resId);
+			bitmap = BitmapFactory.decodeResource(AndroidOpenGLActivity.getContext().getResources(), resId);
 		} catch (Exception e) {
-			Log.e("FUCK", "Error while loading texture "+s+" from R.id = "+resId);
+			Log.e("FUCK", "Error while loading texture " + s + " from R.id = "+resId);
 		}
 		
 		GLES20.glGenTextures(1, temp, 0);
