@@ -2,7 +2,6 @@ package alex.taran.picworld;
 
 import java.util.Vector;
 
-import alex.taran.opengl.GameWorld;
 import android.opengl.*;
 
 public class World {

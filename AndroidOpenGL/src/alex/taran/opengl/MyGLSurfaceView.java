@@ -34,13 +34,19 @@ public class MyGLSurfaceView extends GLSurfaceView {
 	}
 	
 	private boolean isPressed;
-	private float lastX;
-	private float lastY;
+	private boolean isScaling;
+	private float lastX1;
+	private float lastY1;
+	private float lastX2;
+	private float lastY2;
 	
 	private void initValues() {
 		isPressed = false;
-		lastX = 0.0f;
-		lastY = 0.0f;
+		isScaling = false;
+		lastX1 = 0.0f;
+		lastY1 = 0.0f;
+		lastX2 = 0.0f;
+		lastY2 = 0.0f;
 	}
 
 	@Override
@@ -50,30 +56,44 @@ public class MyGLSurfaceView extends GLSurfaceView {
 		}
 		if (m.getAction() == MotionEvent.ACTION_DOWN) {
 			isPressed = true;
-			lastX = m.getX();
-			lastY = m.getY();
+			int pointerCount = m.getPointerCount();
+			lastX1 = m.getX(0);
+			lastY1 = m.getY(0);
+			if (pointerCount >= 2) {
+				lastX2 = m.getX(1);
+				lastY2 = m.getY(1);
+				isScaling = true;
+			} else {
+				isScaling = false;
+			}
 		} else if (m.getAction() == MotionEvent.ACTION_MOVE) {
 			if (!isPressed) {
 				return false;
 			}
-			float x = m.getX(), dx = x - lastX;
-			float y = m.getY(), dy = y - lastY;
-			myRenderer.cameraPhi += dx / 200.0f;
+			float x1 = m.getX(0), dx1 = x1 - lastX1;
+			float y1 = m.getY(0), dy1 = y1 - lastY1;
+			myRenderer.cameraPhi += dx1 / 200.0f;
 			while (myRenderer.cameraPhi < 0.0f) {
 				myRenderer.cameraPhi += 2.0f * Math.PI;
 			}
 			while (myRenderer.cameraPhi > 2.0f * Math.PI) {
 				myRenderer.cameraPhi -= 2.0f * Math.PI;
 			}
-			myRenderer.cameraTheta += dy / 200.0f;
+			myRenderer.cameraTheta += dy1 / 200.0f;
 			if (myRenderer.cameraTheta > Math.PI * 0.5f) {
 				myRenderer.cameraTheta = (float)Math.PI * 0.5f;
 			}
 			if (myRenderer.cameraTheta < -Math.PI * 0.5f) {
 				myRenderer.cameraTheta = -(float)Math.PI * 0.5f;
 			}
-			lastX = x;
-			lastY = y;
+			int pointerCount = m.getPointerCount();
+			if (pointerCount >=2) {
+				float x2 = m.getX(1);
+				float y2 = m.getY(1);
+				
+			}
+			lastX1 = x1;
+			lastY1 = y1;
 			//Log.d("FUCK", "Phi = "+ myRenderer.cameraPhi + "  Theta = " + myRenderer.cameraTheta);
 		} else if (m.getAction() == MotionEvent.ACTION_UP) {
 			isPressed = false;
