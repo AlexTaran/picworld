@@ -187,4 +187,99 @@ public class GLBuffers {
 		offsets.put("normals", new BufferOffset(3 * 4 * 36 + 2 * 4 * 36, 3 * 4 * 36));
 		return offsets;
 	}
+	
+	public static float[] genSideBoxBuffer(float szx, float szy,float szz) {
+		float data[] = {
+			-szx, -szy, -szz,
+			 szx, -szy, -szz,
+			 szx,  szy, -szz,
+			-szx, -szy, -szz,
+			 szx,  szy, -szz,
+			-szx,  szy, -szz,
+			
+			-szx, -szy,  szz,
+			 szx, -szy,  szz,
+			 szx,  szy,  szz,
+			-szx, -szy,  szz,
+			 szx,  szy,  szz,
+			-szx,  szy,  szz,
+			
+			-szx, -szy, -szz,
+			-szx,  szy, -szz,
+			-szx,  szy,  szz,
+			-szx, -szy, -szz,
+			-szx,  szy,  szz,
+			-szx, -szy,  szz,
+			
+			 szx, -szy, -szz,
+			 szx,  szy, -szz,
+			 szx,  szy,  szz,
+			 szx, -szy, -szz,
+			 szx,  szy,  szz,
+			 szx, -szy,  szz,
+			
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
+				
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
+			
+			0.0f, 0.0f,
+			0.0f, 1.0f,
+			1.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 1.0f,
+			1.0f, 0.0f,
+				
+			0.0f, 0.0f,
+			0.0f, 1.0f,
+			1.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 1.0f,
+			1.0f, 0.0f,
+			
+			0.0f, 0.0f,-1.0f,
+			0.0f, 0.0f,-1.0f,
+			0.0f, 0.0f,-1.0f,
+			0.0f, 0.0f,-1.0f,
+			0.0f, 0.0f,-1.0f,
+			0.0f, 0.0f,-1.0f,
+			0.0f, 0.0f, 1.0f,
+			0.0f, 0.0f, 1.0f,
+			0.0f, 0.0f, 1.0f,
+			0.0f, 0.0f, 1.0f,
+			0.0f, 0.0f, 1.0f,
+			0.0f, 0.0f, 1.0f,
+			
+			-1.0f,0.0f, 0.0f,
+			-1.0f,0.0f, 0.0f,
+			-1.0f,0.0f, 0.0f,
+			-1.0f,0.0f, 0.0f,
+			-1.0f,0.0f, 0.0f,
+			-1.0f,0.0f, 0.0f,
+			1.0f, 0.0f, 0.0f,
+			1.0f, 0.0f, 0.0f,
+			1.0f, 0.0f, 0.0f,
+			1.0f, 0.0f, 0.0f,
+			1.0f, 0.0f, 0.0f,
+			1.0f, 0.0f, 0.0f,
+		};
+		return data;
+	}
+	
+	public static Map<String, BufferOffset> genSideBoxBufferNamedOffsets() {
+		Map<String, BufferOffset> offsets = new HashMap<String, BufferOffset>();
+		offsets.put("vertices", new BufferOffset(0, 3 * 4 * 24));
+		offsets.put("texcoords", new BufferOffset(3 * 4 * 24, 2 * 4 * 24));
+		offsets.put("normals", new BufferOffset(3 * 4 * 24 + 2 * 4 * 24, 3 * 4 * 24));
+		return offsets;
+	}
 }
