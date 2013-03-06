@@ -1,6 +1,7 @@
 package alex.taran.opengl;
 
 import java.util.ArrayList;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
@@ -297,33 +298,36 @@ public class MyRenderer implements Renderer {
 		width = w;
 		height = h;
 		GLES20.glViewport(0, 0, w, h);
-		programmingUI.init(w, h);
-		//gl.glMatrixMode(GLES20.GL_PROJECTION);
-		//gl.glLoadIdentity();
-		//gl.glOrthof(0.0f, 1.0f, 1.0f, 0.0f, 0.5f, -0.5f);
-		//gl.glScalef(1.0f / width, 1.0f / height, 1.0f);
-		// GLU.gluPerspective(gl, 45.0f, (float) width / (float) height, 0.1f,
-		// 100.0f);
-		//gl.glMatrixMode(GL10.GL_MODELVIEW);
-		//gl.glLoadIdentity();
-		//controlState.surfaceSizes.x = width;
-		//controlState.surfaceSizes.y = height;
-		//controlState.scale = Math.max((height - controlState.countButtonSize())
-		//		/ gameWorld.gameMap.sizes.y, width / gameWorld.gameMap.sizes.x);
+		
+		Runnable onStart = new Runnable() {
+			@Override
+			public void run() {
+				Log.i("FUCK", "onStart clicked");
+			}
+		};
+
+		Runnable onPause = new Runnable() {
+			@Override
+			public void run() {
+				Log.i("FUCK", "onPause clicked");
+			}
+		};
+
+		programmingUI.init(w, h, onStart, onPause);
 	}
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		//GLES20.glSglShadeModel(GL10.GL_SMOOTH);
 		GLES20.glClearDepthf(1.0f);
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		GLES20.glDepthFunc(GLES20.GL_LEQUAL);
-		//GLES20.glHint(GLES20.GL_PGL_PERSPECTIVE_CORRECTION_HINT, GLES20.GL_NICEST);
-		//GLES20.glPointSize(16.0f);
 		GLES20.glEnable(GLES20.GL_TEXTURE_2D);
+
 		Log.d("FUCK", "Initial memory usage: " + AndroidOpenGLActivity.getUsedMemorySize());
+		// TODO(alex): implement automatic texture loader
 		textures = new TextureHolder();
+
 		textures.load("icon_scaling", R.drawable.icon_scaling);
 		textures.load("icon_select", R.drawable.icon_select);
 		textures.load("icon_go", R.drawable.icon_go);

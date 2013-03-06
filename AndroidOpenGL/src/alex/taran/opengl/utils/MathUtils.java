@@ -3,7 +3,6 @@ package alex.taran.opengl.utils;
 import java.util.List;
 
 import android.graphics.PointF;
-import android.graphics.Rect;
 
 public class MathUtils {
 	public final static float EPS = 1e-5f;

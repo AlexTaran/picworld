@@ -1,8 +1,5 @@
 package alex.taran.picworld;
 
-import java.util.Vector;
-
-import android.opengl.*;
 
 public class World {
 	public enum WorldState {

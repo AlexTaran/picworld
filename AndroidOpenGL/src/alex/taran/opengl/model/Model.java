@@ -1,13 +1,10 @@
 package alex.taran.opengl.model;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -187,13 +184,16 @@ public class Model implements Serializable {
 		for (String name : groups.keySet()) {
 			vboSize += groups.get(name).length;
 		}
+		
+		if (vboSize > 100500) {
+			Log.w("FUCK", "vertex buffer size is over 100500: " + vboSize);
+		}
 		float[] buf = new float[vboSize];
 		int offset = 0;
 		for (String name : groups.keySet()) {
 			float[] arr = groups.get(name);
-			for (int i = 0; i < arr.length; ++i) {
-				buf[offset] = arr[i];
-				++offset;
+			for (int i = 0; i < arr.length; ++i, ++offset) {
+				buf[offset] = arr[i]; 
 			}
 		}
 		return buf;

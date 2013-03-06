@@ -31,12 +31,15 @@ public class SimpleHUD implements HUD {
 		this.tmpSlots = new ArrayList<ArrayList<HUDDraggableElement>>(this.confirmedSlots);		
 	}
 	
-	public synchronized void init(float screenWidth, float screenHeight) {
+	public synchronized void init(float screenWidth, float screenHeight, Runnable onStart, Runnable onPause) {
 		this.yOffsets = new float[capacities.length];
 		
 		this.screenWidth = screenWidth;
 		this.screenHeight = screenHeight;
 		this.elementSize = screenWidth / 4 / SLOT_GROUP_WIDTH;
+		
+		this.onStart = onStart;
+		this.onPause = onPause;
 		
 		elements.clear();
 		
@@ -64,6 +67,8 @@ public class SimpleHUD implements HUD {
 		// Creating panel from where you can drag elements
 		x = 0;
 		y = elementMargin;
+		
+		elements.add(new HUDButtonElement(0.325f * this.screenWidth - 50, 0.9f * screenHeight - 100,  0.325f  * screenWidth + 50, 0.9f * screenHeight + 100, onStart));
 		
 		elements.add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.ROTATE_LEFT, null));
 		x += elementSize;
@@ -123,11 +128,24 @@ public class SimpleHUD implements HUD {
 				onReleaseDragging();
 				return true;
 			}
-		} else if (action == MotionEvent.ACTION_DOWN) {
-			for (HUDElement element : elements) {
-				if (element instanceof HUDDraggableElement & element.contains(x, y)) {
-					startDragging((HUDDraggableElement) element, x, y);
-					return true;
+		} else {
+			switch (action) {
+			//case MotionEvent.ACTION_MOVE:
+			case MotionEvent.ACTION_DOWN:
+				for (HUDElement element : elements) {
+					if (element instanceof HUDDraggableElement & element.contains(x, y)) {
+						startDragging((HUDDraggableElement) element, x, y);
+						return true;
+					} else if (element instanceof HUDButtonElement & element.contains(x, y)) {
+						HUDButtonElement button = ((HUDButtonElement) element);
+						button.run();
+						if (button.function.equals(onStart)) {
+							button.function = onPause;
+						} else {
+							button.function = onStart;
+						}
+						return true;
+					}
 				}
 			}
 		}
@@ -280,6 +298,9 @@ public class SimpleHUD implements HUD {
 	@SuppressWarnings(value = {"unused"})
 	private float screenHeight;
 
+	private Runnable onStart;
+	private Runnable onPause;
+	
 	private final int SLOT_GROUP_WIDTH = 5;
 	private final int ANIMATION_TIME_MILLS = 100;
 	

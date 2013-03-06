@@ -1,7 +1,6 @@
 package vladimir.losev;
 
 import android.graphics.RectF;
-import android.util.Log;
 
 public class HUDLinearAnimator implements HUDElementAnimator {
 	public HUDLinearAnimator(RectF startPos, RectF endPos,long startTime, long endTime) {

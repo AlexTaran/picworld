@@ -1,12 +1,8 @@
 package alex.taran.opengl;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.OutputStreamWriter;
-
-import com.google.gson.Gson;
 
 import vladimir.losev.SimpleHUD;
 import alex.taran.picworld.GameField;
@@ -21,6 +17,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+
+import com.google.gson.Gson;
 
 public class AndroidOpenGLActivity extends Activity {
 	private MyRenderer renderer;
