@@ -61,4 +61,28 @@ public class Matrix4 {
 		Matrix.scaleM(data, 0, kx, ky, kz);
 		return this;
 	}
+	
+	public Matrix4 scaleX(float kx) {
+		return scale(kx, 1.0f, 1.0f);
+	}
+	
+	public Matrix4 scaleY(float ky) {
+		return scale(1.0f, ky, 1.0f);
+	}
+	
+	public Matrix4 scaleZ(float kz) {
+		return scale(1.0f, 1.0f, kz);
+	}
+	
+	public Matrix4 invX() {
+		return scaleX(-1.0f);
+	}
+	
+	public Matrix4 invY() {
+		return scaleY(-1.0f);
+	}
+	
+	public Matrix4 invZ() {
+		return scaleZ(-1.0f);
+	}
 }

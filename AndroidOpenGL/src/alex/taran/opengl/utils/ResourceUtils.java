@@ -22,6 +22,10 @@ public class ResourceUtils {
 		return loadInputStreamAsLines(getInputStreamForRawResource(context, name));
 	}
 	
+	public static String loadRawTextFileAsString(Context context, String name) {
+		return loadInputStreamAsString(getInputStreamForRawResource(context, name));
+	}
+	
 	public static InputStream getInputStreamForRawResource(Context context, String name) {
 		Resources res = context.getResources();
 		int id = res.getIdentifier(name, "raw", context.getPackageName());
@@ -43,6 +47,21 @@ public class ResourceUtils {
 			return null;
 		}
 		return file;
+	}
+	
+	public static String loadInputStreamAsString(InputStream inputStream) {
+		InputStreamReader inputreader = new InputStreamReader(inputStream);
+		BufferedReader buffreader = new BufferedReader(inputreader);
+		StringBuilder builder = new StringBuilder();
+		String s;
+		try {
+			while ((s = buffreader.readLine()) != null) {
+				builder.append(s);
+			}
+		} catch (IOException e) {
+			return null;
+		}
+		return builder.toString();
 	}
 	
 	public static InputStream getInputStreamForRawFile(String fileName) {

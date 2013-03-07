@@ -243,7 +243,6 @@ public class Model implements Serializable {
 		float[] dimensions = new float[] {Float.MAX_VALUE, Float.MIN_VALUE, Float.MAX_VALUE,
 				Float.MIN_VALUE, Float.MAX_VALUE, Float.MIN_VALUE};
 		for (Entry<String, float[]> e: groups.entrySet()) {
-			float minx = Float.MIN_VALUE, maxx, miny, maxy, minz, maxz;
 			int idx = 0;
 			for (Float f: e.getValue()) {
 				if (idx % 9 == 0) {
@@ -263,6 +262,7 @@ public class Model implements Serializable {
 	}
 	
 	public void cleanup() {
+		// removes empty groups
 		// .toArray() is just to copy the set and avoid ConcurrentModificationException
 		for (Object s: groups.keySet().toArray()) {
 			if (((float[])groups.get(s)).length == 0) {

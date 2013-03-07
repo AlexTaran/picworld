@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import alex.taran.utils.Matrix4;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Log;
@@ -103,6 +104,12 @@ public class Shader {
 	public void enableVertexAttribArray(String s) {
 		GLES20.glEnableVertexAttribArray(attribLoc(s));
 	}
+	
+	public void enableVertexAttribArrays(String ... s) {
+		for (String str :s) {
+			enableVertexAttribArray(str);
+		}
+	}
 
 	public int uniformLoc(String s) {
 		Integer loc = uniformLocations.get(s);
@@ -115,6 +122,16 @@ public class Shader {
 			}
 		}
 		return loc;
+	}
+	
+	// uniform setters
+	
+	public void setUniform1i(String s, int i) {
+		GLES20.glUniform1i(uniformLoc(s), i);
+	}
+	
+	public void setUniformMatrix4f(String s, Matrix4 m) {
+		GLES20.glUniformMatrix4fv(uniformLoc(s), 1, false, m.data, 0);
 	}
 
 	@Override

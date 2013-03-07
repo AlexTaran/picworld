@@ -123,8 +123,7 @@ public class GLBuffers {
 			
 			0.5f, 0.0f,
 			0.5f, 1.0f,
-			1.0f, 1.0f,
-			
+			1.0f, 1.0f,	
 			0.5f, 0.0f,
 			1.0f, 1.0f,
 			1.0f, 0.0f,
@@ -132,7 +131,6 @@ public class GLBuffers {
 			0.5f, 0.0f,
 			0.5f, 1.0f,
 			1.0f, 1.0f,
-			
 			0.5f, 0.0f,
 			1.0f, 1.0f,
 			1.0f, 0.0f,
@@ -280,6 +278,41 @@ public class GLBuffers {
 		offsets.put("vertices", new BufferOffset(0, 3 * 4 * 24));
 		offsets.put("texcoords", new BufferOffset(3 * 4 * 24, 2 * 4 * 24));
 		offsets.put("normals", new BufferOffset(3 * 4 * 24 + 2 * 4 * 24, 3 * 4 * 24));
+		return offsets;
+	}
+	
+	public static float[] gen3DHorizontalQuadBuffer(float halfSizeX, float halfSizeZ) {
+		float data[] = {
+			-halfSizeX, 0.0f, -halfSizeZ,
+			 halfSizeX, 0.0f, -halfSizeZ,
+			 halfSizeX, 0.0f,  halfSizeZ,
+			-halfSizeX, 0.0f, -halfSizeZ,
+			 halfSizeX, 0.0f,  halfSizeZ,
+			-halfSizeX, 0.0f,  halfSizeZ,
+			
+			0.0f, 0.0f,
+			1.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 0.0f,
+			1.0f, 1.0f,
+			0.0f, 1.0f,
+			
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+			0.0f, 1.0f, 0.0f,
+		};
+		return data;
+	}
+	
+	public static Map<String, BufferOffset> gen3DHorizontalQuadBufferNamedOffsets() {
+		Map<String, BufferOffset> offsets = new HashMap<String, BufferOffset>();
+		offsets.put("vertices", new BufferOffset(0, 3 * 4 * 6));
+		offsets.put("texcoords", new BufferOffset(3 * 4 * 6, 2 * 4 * 6));
+		offsets.put("normals", new BufferOffset(3 * 4 * 6 + 2 * 4 * 6, 3 * 4 * 6));
 		return offsets;
 	}
 }

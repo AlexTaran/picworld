@@ -5,8 +5,10 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 
 import vladimir.losev.SimpleHUD;
+import alex.taran.opengl.utils.ResourceUtils;
 import alex.taran.picworld.GameField;
 import alex.taran.picworld.GameField.CellLightState;
+import alex.taran.picworld.LevelData;
 import alex.taran.picworld.Robot;
 import alex.taran.picworld.World;
 import android.app.Activity;
@@ -62,19 +64,20 @@ public class AndroidOpenGLActivity extends Activity {
 		
 		Robot initRobot = new Robot();
 		
-		Gson gson = new Gson();
+		/*Gson gson = new Gson();
 		
 		File root = android.os.Environment.getExternalStorageDirectory(); 
 		File myFolder = new File(root, "PicWorld");
 		myFolder.mkdir();
 		Log.d("FUCK", root.getAbsolutePath());
-		File file = new File(myFolder, "myData.txt");
+		File file = new File(myFolder, "testLevel.txt");
 		try {
 			FileOutputStream f = new FileOutputStream(file);
 			OutputStreamWriter ow = new OutputStreamWriter(f);
-			ow.write("Test file write...");
-			ow.write(gson.toJson(gameField).toString());
-			ow.write(gson.toJson(initRobot).toString());
+			//ow.write("Test file write...");
+			//ow.write(gson.toJson(gameField).toString());
+			//ow.write(gson.toJson(initRobot).toString());
+			ow.write(new LevelData(gameField, initRobot).toJson());
 			ow.close();
 			f.close();
 			MediaScannerConnection.scanFile(this.getApplicationContext(), new String[]{file.getAbsolutePath()}, null, null);
@@ -82,10 +85,13 @@ public class AndroidOpenGLActivity extends Activity {
 		} catch (Exception e) {
 			Log.d("FUCK", "Unable to write: " + file.getAbsolutePath());
 			e.printStackTrace();
-		}
+		}*/
+		
+		LevelData levelData = LevelData.createFromJson(ResourceUtils.loadRawTextFileAsString(getApplicationContext(), "testlevel"));
 		
 		
-		world = new World(gameField, initRobot);
+		//world = new World(gameField, initRobot);
+		world = new World(levelData.gameField, levelData.initRobot);
 		programmingUI = new SimpleHUD(new int[] {7,5,11});
 		
 		Log.d("FUCK", "Activity.onCreate memory usage the end: " + getUsedMemorySize());

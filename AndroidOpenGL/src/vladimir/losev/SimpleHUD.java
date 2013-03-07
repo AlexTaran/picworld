@@ -98,10 +98,16 @@ public class SimpleHUD implements HUD {
 	}
 	
 	public synchronized ArrayList<ArrayList<Command>> getCommands() {
+		commands.clear();
 		for (int i = 0; i < confirmedSlots.size(); ++i) {
+			ArrayList<Command> proc = new ArrayList<Command>();
 			for (int j = 0; j < confirmedSlots.get(i).size(); ++j) {
-				commands.get(i).set(j, confirmedSlots.get(i).get(j).command);
+				//commands.get(i).set(j, confirmedSlots.get(i).get(j).command);
+				if(confirmedSlots.get(i).get(j)!=null) {
+					proc.add(confirmedSlots.get(i).get(j).command);
+				}
 			}
+			commands.add(proc);
 		}
 		
 		return commands;

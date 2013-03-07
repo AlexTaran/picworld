@@ -39,6 +39,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
 	private float lastY1;
 	private float lastX2;
 	private float lastY2;
+	private int lastPointerCount;
 	
 	private void initValues() {
 		isPressed = false;
@@ -47,6 +48,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
 		lastY1 = 0.0f;
 		lastX2 = 0.0f;
 		lastY2 = 0.0f;
+		lastPointerCount = 0;
 	}
 
 	@Override
@@ -66,12 +68,42 @@ public class MyGLSurfaceView extends GLSurfaceView {
 			} else {
 				isScaling = false;
 			}
+			lastPointerCount = pointerCount;
 		} else if (m.getAction() == MotionEvent.ACTION_MOVE) {
 			if (!isPressed) {
 				return false;
 			}
 			float x1 = m.getX(0), dx1 = x1 - lastX1;
 			float y1 = m.getY(0), dy1 = y1 - lastY1;
+			
+			int pointerCount = m.getPointerCount();
+			if (pointerCount >=2) {
+				float x2 = m.getX(1);
+				float y2 = m.getY(1);
+				if(!isScaling || lastPointerCount == 1) {
+					isScaling = true;
+				} else {
+					float oldDist2 = (lastX1-lastX2) * (lastX1-lastX2) + (lastY1-lastY2) * (lastY1-lastY2);
+					float dist2 = (x1-x2) * (x1-x2) + (y1-y2) * (y1-y2);
+					float scaleKoef = (float)Math.sqrt(dist2/oldDist2);
+					myRenderer.cameraRadius *= scaleKoef;
+					if (myRenderer.cameraRadius < 2.0f) {
+						myRenderer.cameraRadius = 2.0f;
+					}
+					if (myRenderer.cameraRadius > 20.0f) {
+						myRenderer.cameraRadius = 20.0f;
+					}
+					dx1 = (x2 + x1) / 2 - (lastX2+lastX1) / 2;
+					dy1 = (y2 + y1) / 2 - (lastY2+lastY1) / 2;
+				}
+				lastX2 = x2;
+				lastY2 = y2;
+			} else if (pointerCount == 1 && isScaling) {
+				lastX1 = x1;
+				lastY1 = y1;
+				isScaling = false;
+				return true;
+			}
 			myRenderer.cameraPhi += dx1 / 200.0f;
 			while (myRenderer.cameraPhi < 0.0f) {
 				myRenderer.cameraPhi += 2.0f * Math.PI;
@@ -86,14 +118,9 @@ public class MyGLSurfaceView extends GLSurfaceView {
 			if (myRenderer.cameraTheta < -Math.PI * 0.5f) {
 				myRenderer.cameraTheta = -(float)Math.PI * 0.5f;
 			}
-			int pointerCount = m.getPointerCount();
-			if (pointerCount >=2) {
-				float x2 = m.getX(1);
-				float y2 = m.getY(1);
-				
-			}
 			lastX1 = x1;
 			lastY1 = y1;
+			lastPointerCount = pointerCount;
 			//Log.d("FUCK", "Phi = "+ myRenderer.cameraPhi + "  Theta = " + myRenderer.cameraTheta);
 		} else if (m.getAction() == MotionEvent.ACTION_UP) {
 			isPressed = false;

@@ -15,6 +15,7 @@ public class World {
 	
 	public void beginExecution(Program program) {
 		this.program = program;
+		this.program.beginExecution();
 		worldState = WorldState.EXECUTION;
 		completionOperationProgress = 0.0f;
 		resetRobot();
@@ -23,6 +24,10 @@ public class World {
 	public void interruptExecution() {
 		worldState = WorldState.STOPPED;
 		resetRobot();
+	}
+	
+	public WorldState getWorldState() {
+		return worldState;
 	}
 	
 	public Robot.ImmutableRobot getCurrentRobotState() {
@@ -70,7 +75,7 @@ public class World {
 		case MOVE_FORWARD: case JUMP: {
 			robot.setPosX(robot.getPosX() + robot.getLookDirection().getLookX());
 			robot.setPosZ(robot.getPosZ() + robot.getLookDirection().getLookZ());
-			robot.setPosY(gameField.getCellAt(robot.getPosX(), robot.getPosZ()).getHeight() + 1);
+			robot.setPosY(gameField.getCellAt(robot.getPosX(), robot.getPosZ()).getHeight());
 			break;
 		}
 		case ROTATE_LEFT: {

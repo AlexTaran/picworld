@@ -123,7 +123,18 @@ public class Robot implements Cloneable {
 			case NEGX: return NEGZ;
 			case POSZ: return NEGX;
 			default:
-				throw new RuntimeException("Wrong code in LookDirection.getRotatedLeft code");
+				throw new RuntimeException("Wrong code in LookDirection.getRotatedRight code");
+			}
+		}
+		
+		public int getRotationDegreesFromPosX() {
+			switch(this) {
+			case POSX: return 0;
+			case NEGZ: return 90;
+			case NEGX: return 180;
+			case POSZ: return 270;
+			default:
+				throw new RuntimeException("Wrong code in LookDirection.getRotationDegreesFromPosX code");
 			}
 		}
 		
