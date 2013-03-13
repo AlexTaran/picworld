@@ -56,7 +56,7 @@ public class World {
 		}
 		// 1 op/sec
 		completionOperationProgress += deltaTime;
-		while (completionOperationProgress >= 1.0f) {
+		while (completionOperationProgress >= 1.0f && program.hasRemainingCommand()) {
 			completionOperationProgress -= 1.0f;
 			executeCommand(program.getCurrentCommand());
 			if(!program.nextCommand() || !validateCommand(program.getCurrentCommand())) {

@@ -40,9 +40,17 @@ public class Matrix4 {
 		return this;
 	}
 	
+	public Matrix4 translate(Vector3 v) {
+		return translate(v.x, v.y, v.z);
+	}
+	
 	public Matrix4 rotate(float degrees, float ax, float ay, float az) {
 		Matrix.rotateM(data, 0, degrees, ax, ay, az);
 		return this;
+	}
+	
+	public Matrix4 rotate(float degrees, Vector3 v) {
+		return rotate(degrees, v.x, v.y, v.z);
 	}
 	
 	public Matrix4 rotateX(float degrees) {
