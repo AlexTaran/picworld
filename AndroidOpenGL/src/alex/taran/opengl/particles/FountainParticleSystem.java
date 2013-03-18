@@ -19,13 +19,20 @@ public class FountainParticleSystem {
 	public float minFade;
 	public float maxFade;
 	public float emitAngle;
-	public Vector3 position;
+	public final Vector3 position = new Vector3();
+	public final Vector3 gravity = new Vector3();
 	
 	private Vector3 direction;
 	
-	
 	public void update(float deltaTime) {
-		for (int i = 0; i < particles.size(); ++i) {
+		for (FountainParticle p :particles) {
+			p.life -= p.fade;
+			if (p.life < 0.0f) {
+				resurrectParticle(p);
+			} else {
+				//p.position.add(p.velocity * deltaTime)
+				//p.velocity.add(gravity * deltaTime)
+			}
 		}
 	}
 	
@@ -73,6 +80,16 @@ public class FountainParticleSystem {
 	
 	public FountainParticleSystem setDirection(float x, float y, float z) {
 		direction.set(x, y, z).normalize();
+		return this;
+	}
+	
+	public FountainParticleSystem setGravity(Vector3 v) {
+		gravity.set(v);
+		return this;
+	}
+	
+	public FountainParticleSystem setGravity(float x, float y, float z) {
+		gravity.set(x, y, z).normalize();
 		return this;
 	}
 	

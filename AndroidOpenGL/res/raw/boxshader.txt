@@ -40,8 +40,8 @@ varying vec3 cam_vec_;
 varying vec3 half_vec_;
 
 void main(){
-    vec3 ambient = vec3(0.2, 0.2, 0.2);
-    vec3 diffuse = vec3(0.8, 0.8, 0.8);
+    vec3 ambient = vec3(0.4, 0.4, 0.4);
+    vec3 diffuse = vec3(0.6, 0.6, 0.6);
     
     vec3 color = texture2D(decal, tc_.xy).rgb;
     

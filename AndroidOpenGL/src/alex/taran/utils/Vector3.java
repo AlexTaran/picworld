@@ -2,7 +2,7 @@ package alex.taran.utils;
 
 import java.util.Random;
 
-public class Vector3 implements Cloneable{
+public class Vector3 implements Cloneable, ImmutableVector3{
 	private static Random random = new Random(System.currentTimeMillis());
 	
 	public float x;
@@ -120,18 +120,22 @@ public class Vector3 implements Cloneable{
 	
 	// lens and dists
 	
+	@Override
 	public float len2() {
 		return x*x + y*y + z*z;
 	}
 	
+	@Override
 	public float len() {
 		return (float)Math.sqrt(len2());
 	}
 	
+	@Override
 	public float dist2(Vector3 other) {
 		return (new Vector3(x-other.x, y-other.y, z-other.z)).len2();
 	}
 	
+	@Override
 	public float dist(Vector3 other) {
 		return (float)Math.sqrt(dist2(other));
 	}
@@ -166,5 +170,20 @@ public class Vector3 implements Cloneable{
 	@Override
 	public Vector3 clone() {
 		return new Vector3(x, y, z);
+	}
+
+	@Override
+	public float getX() {
+		return x;
+	}
+
+	@Override
+	public float getY() {
+		return y;
+	}
+
+	@Override
+	public float getZ() {
+		return z;
 	}
 }

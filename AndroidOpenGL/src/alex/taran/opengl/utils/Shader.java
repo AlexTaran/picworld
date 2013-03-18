@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import alex.taran.utils.Matrix4;
+import alex.taran.utils.Vector3;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.util.Log;
@@ -128,6 +129,14 @@ public class Shader {
 	
 	public void setUniform1i(String s, int i) {
 		GLES20.glUniform1i(uniformLoc(s), i);
+	}
+	
+	public void setUniform3f(String s, float x, float y, float z) {
+		GLES20.glUniform3f(uniformLoc(s), x, y, z);
+	}
+	
+	public void setUniform3f(String s, Vector3 v) {
+		GLES20.glUniform3f(uniformLoc(s), v.x, v.y, v.z);
 	}
 	
 	public void setUniformMatrix4f(String s, Matrix4 m) {

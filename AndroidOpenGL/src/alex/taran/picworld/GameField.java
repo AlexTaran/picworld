@@ -3,6 +3,15 @@ package alex.taran.picworld;
 public class GameField {
 	public enum CellLightState {
 		NO_LIGHT, LIGHT_ON, LIGHT_OFF;
+		
+		public CellLightState toggled() {
+			switch (this) {
+			case NO_LIGHT: return NO_LIGHT;
+			case LIGHT_ON: return LIGHT_OFF;
+			case LIGHT_OFF: return LIGHT_ON;
+			default: throw new RuntimeException("Bad State of CellLightState");
+			}
+		}
 	}
 	
 	private GameField() {
@@ -66,6 +75,10 @@ public class GameField {
 		public Cell setLightState(CellLightState lightState) {
 			this.lightState = lightState;
 			return this;
+		}
+		
+		public void toggleLight() {
+			lightState = lightState.toggled();
 		}
 		
 		private CellLightState lightState;

@@ -17,6 +17,41 @@ public class Matrix4 {
 		return this;
 	}
 	
+	public Matrix4 setBillboardMatrix(float camx, float camy, float camz,
+			float posx, float posy, float posz, float upx, float upy, float upz) {
+		float lookx = camx - posx;
+		float looky = camy - posy;
+		float lookz = camz - posz;
+		Vector3 right = new Vector3(lookx, looky, lookz).cross(upx, upy, upz).normalize();
+		Vector3 up = new Vector3(lookx, looky, lookz).cross(right).normalize();
+		Vector3 look = right.cross(up);
+		data[0] = right.x;
+		data[1] = right.y;
+		data[2] = right.z;
+		data[3] = 0.0f;
+		
+		data[4] = up.x;
+		data[5] = up.y;
+		data[6] = up.z;
+		data[7] = 0.0f;
+		
+		data[8] = look.x;
+		data[9] = look.y;
+		data[10] = look.z;
+		data[11] = 0.0f;
+		
+		data[12] = posx;
+		data[13] = posy;
+		data[14] = posz;
+		data[15] = 1.0f;
+		return this;
+	}
+	
+	public Matrix4 setBillboardMatrix(Vector3 campos, Vector3 bilpos, Vector3 up) {
+		return setBillboardMatrix(campos.x, campos.y, campos.z,
+				bilpos.x, bilpos.y, bilpos.z, up.x, up.y, up.z);
+	}
+	
 	public Matrix4 setPerspectiveMatrix(float fovyInDegrees, float aspectRatio, float znear, float zfar) {
 		 float ymax, xmax;
 		 ymax = znear * (float)Math.tan(fovyInDegrees * Math.PI / 360.0f);

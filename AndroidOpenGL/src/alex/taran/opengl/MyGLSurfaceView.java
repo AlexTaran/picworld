@@ -193,12 +193,16 @@ public class MyGLSurfaceView extends GLSurfaceView {
 		if (cm == ControlMode.ROTATING) {
 			lastX1 = m.getX(0);
 			lastY1 = m.getY(0);
-		}
-		if (cm == ControlMode.SCALING) {
+		} else if (cm == ControlMode.SCALING) {
+			lastX1 = m.getX(0);
+			lastY1 = m.getY(0);
 			lastX2 = m.getX(1);
 			lastY2 = m.getY(1);
-		}
-		if (cm == ControlMode.MOVING) {
+		} else if (cm == ControlMode.MOVING) {
+			lastX1 = m.getX(0);
+			lastY1 = m.getY(0);
+			lastX2 = m.getX(1);
+			lastY2 = m.getY(1);
 			lastX3 = m.getX(2);
 			lastY3 = m.getY(2);
 		}
@@ -214,29 +218,60 @@ public class MyGLSurfaceView extends GLSurfaceView {
 			lastX1 = x1;
 			lastY1 = y1;
 		} else if (cm == ControlMode.SCALING) {
-			float x2 = m.getX(1);
-			float y2 = m.getY(1);
 			float x1 = m.getX(0);
 			float y1 = m.getY(0);
+			float x2 = m.getX(1);
+			float y2 = m.getY(1);
 			float oldDist2 = (lastX1-lastX2) * (lastX1-lastX2) + (lastY1-lastY2) * (lastY1-lastY2);
 			float dist2 = (x1-x2) * (x1-x2) + (y1-y2) * (y1-y2);
-			float scaleKoef = (float)Math.sqrt(dist2/oldDist2);
-			myRenderer.cameraRadius *= scaleKoef;
-			if (myRenderer.cameraRadius < 2.0f) {
-				myRenderer.cameraRadius = 2.0f;
-			}
-			if (myRenderer.cameraRadius > 20.0f) {
-				myRenderer.cameraRadius = 20.0f;
-			}
-			float dx = (x2 + x1) / 2 - (lastX2+lastX1) / 2;
-			float dy = (y2 + y1) / 2 - (lastY2+lastY1) / 2;
+			float scaleKoef = (float)Math.sqrt(oldDist2/dist2);
+			
+			performScaling(scaleKoef);
+			
+			float dx = (x2 + x1) / 2 - (lastX2 + lastX1) / 2;
+			float dy = (y2 + y1) / 2 - (lastY2 + lastY1) / 2;
 			
 			performRotating(dx, dy);
 			
-			lastX2 = x2;
-			lastY2 = y2;
 			lastX1 = x1;
 			lastY1 = y1;
+			lastX2 = x2;
+			lastY2 = y2;
+		}  else if (cm == ControlMode.MOVING) {
+			float x1 = m.getX(0);
+			float y1 = m.getY(0);
+			float x2 = m.getX(1);
+			float y2 = m.getY(1);
+			float x3 = m.getX(2);
+			float y3 = m.getY(2);
+			float dx = (x1 + x2 + x3) / 3 - (lastX1 + lastX2 + lastX3) / 3;
+			float dy = (y1 + y2 + y3) / 3 - (lastY1 + lastY2 + lastY3) / 3;
+			
+			float camrightx = -(float) Math.sin(myRenderer.cameraPhi);
+			float camrightz = (float) Math.cos(myRenderer.cameraPhi);
+			
+			myRenderer.cameraX += camrightx * dx * myRenderer.cameraRadius / 750.0f;
+			myRenderer.cameraZ += camrightz * dx * myRenderer.cameraRadius / 750.0f;
+			
+			float camfwdx = (float) Math.cos(myRenderer.cameraPhi);
+			float camfwdz = (float) Math.sin(myRenderer.cameraPhi);
+			
+			myRenderer.cameraX -= camfwdx * dy * myRenderer.cameraRadius / 750.0f;
+			myRenderer.cameraZ -= camfwdz * dy * myRenderer.cameraRadius / 750.0f;
+			
+			
+			float oldSq2 = Math.abs((lastX3 - lastX1) * (lastY2 - lastY1) - (lastX2 - lastX1) * (lastY3- lastY1));
+			float sq2 = Math.abs((x3 - x1) * (y2 - y1) - (x2 - x1) * (y3- y1));
+			float scaleKoef = (float)Math.sqrt(oldSq2/sq2);
+			
+			performScaling(scaleKoef);
+			
+			lastX1 = x1;
+			lastY1 = y1;
+			lastX2 = x2;
+			lastY2 = y2;
+			lastX3 = x3;
+			lastY3 = y3;
 		}
 	}
 	
@@ -259,6 +294,16 @@ public class MyGLSurfaceView extends GLSurfaceView {
 		}
 		if (myRenderer.cameraTheta < -Math.PI * 0.5f) {
 			myRenderer.cameraTheta = -(float)Math.PI * 0.5f;
+		}
+	}
+	
+	private void performScaling(float scaleKoef) {
+		myRenderer.cameraRadius *= scaleKoef;
+		if (myRenderer.cameraRadius < 2.0f) {
+			myRenderer.cameraRadius = 2.0f;
+		}
+		if (myRenderer.cameraRadius > 20.0f) {
+			myRenderer.cameraRadius = 20.0f;
 		}
 	}
 }

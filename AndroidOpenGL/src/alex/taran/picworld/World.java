@@ -86,6 +86,10 @@ public class World {
 			robot.rotateRight();
 			break;
 		}
+		case TOGGLE_LIGHT: {
+			gameField.getCellAt(robot.getPosX(), robot.getPosZ()).toggleLight();
+			break;
+		}
 		default:
 			throw new RuntimeException("Trying to execute unsupported command in 'World' ");
 		}
@@ -121,6 +125,7 @@ public class World {
 			}
 		case ROTATE_LEFT: 
 		case ROTATE_RIGHT: return true; // always can rotate
+		case TOGGLE_LIGHT: return true; // always can toggle light
 		default:
 			return false;
 		}

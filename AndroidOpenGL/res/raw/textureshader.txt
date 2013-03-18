@@ -1,0 +1,27 @@
+###VERTEX
+
+uniform mat4 modelview_matrix;
+uniform mat4 projection_matrix;
+
+attribute vec3 pos;
+attribute vec3 tc;
+
+varying vec3 tc_;
+
+void main(){
+    gl_Position = projection_matrix*modelview_matrix*vec4(pos.x,pos.y,pos.z,1.0);
+    tc_ = tc;
+}
+
+###FRAGMENT
+
+precision mediump float;
+
+uniform sampler2D decal;
+
+varying vec3 tc_;
+
+void main(){
+    vec3 color = texture2D(decal, tc_.xy).rgb;
+    gl_FragColor = vec4(color, 1.0);
+}

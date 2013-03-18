@@ -6,10 +6,10 @@ uniform mat4 projection_matrix;
 uniform vec3 cam_pos;
 
 attribute vec3 pos;
-attribute vec3 tc;
+attribute vec2 tc;
 attribute vec3 nrm;
 
-varying vec3 tc_;
+varying vec2 tc_;
 varying vec3 nrm_;
 varying vec3 light_vec_;
 varying vec3 cam_vec_;
@@ -33,15 +33,15 @@ precision mediump float;
 
 uniform sampler2D decal;
 
-varying vec3 tc_;
+varying vec2 tc_;
 varying vec3 nrm_;
 varying vec3 light_vec_;
 varying vec3 cam_vec_;
 varying vec3 half_vec_;
 
 void main(){
-    vec3 ambient = vec3(0.4, 0.4, 0.4);
-    vec3 diffuse = vec3(0.6, 0.6, 0.6);
+    vec3 ambient = vec3(0.2, 0.2, 0.2);
+    vec3 diffuse = vec3(0.8, 0.8, 0.8);
     
     vec3 color = texture2D(decal, tc_.xy).rgb;
     
@@ -50,7 +50,7 @@ void main(){
     vec3 half_vec = normalize(half_vec_);
     vec3 cam_vec = normalize(cam_vec_);
     vec3 refl = reflect(-cam_vec, nrm);
-    float specular = 32.0;
+    float specular = 16.0;
     float diff_koef = max(0.0, dot(nrm, light_dir));
     float spec_koef = pow(max(dot(nrm, half_vec), 0.0), specular);
     //float spec_koef = pow(max(dot(nrm, refl), 0.0), specular);

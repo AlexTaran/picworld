@@ -54,12 +54,14 @@ public class MyRenderer implements Renderer {
 	private Shader objShader;
 	private Shader buttonShader;
 	private Shader skyboxShader;
+	private Shader textureShader;
 	
 	private ArrayList<HUDElement> hudElements;
 	
 	public float cameraPhi;
 	public float cameraTheta;
 	public float cameraRadius;
+	public float cameraX, cameraY, cameraZ;
 	
 	private float robotDeltaY;
 	
@@ -151,21 +153,24 @@ public class MyRenderer implements Renderer {
 		skyboxShader.unUse();
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		
-		viewMatrix.setLookAt(camposx, camposy, camposz, 0.0f, 0.0f, 0.0f, camupx, camupy, camupz);
+		//viewMatrix.setLookAt(camposx, camposy, camposz, 0.0f, 0.0f, 0.0f, camupx, camupy, camupz);
+		viewMatrix.setLookAt(camposx + cameraX, camposy + cameraY, camposz + cameraZ,
+				cameraX, cameraY, cameraZ, camupx, camupy, camupz);
 		
 		// BASIS
 		simpleShader.use();
 		buffers.bind("basis", GLES20.GL_ARRAY_BUFFER);
 		modelMatrix.setIdentity().scaleX(20.0f).scaleZ(20.0f);
 		mvMatrix.setProduction(viewMatrix, modelMatrix);
-		GLES20.glUniformMatrix4fv(simpleShader.uniformLoc("modelview_matrix"), 1, false, mvMatrix.data, 0);
-		GLES20.glUniformMatrix4fv(simpleShader.uniformLoc("projection_matrix"), 1, false, perspectiveMatrix.data, 0);
+		simpleShader.setUniformMatrix4f("modelview_matrix", mvMatrix);
+		simpleShader.setUniformMatrix4f("projection_matrix", perspectiveMatrix);
 		simpleShader.enableVertexAttribArrays("pos", "col");
 		GLES20.glVertexAttribPointer(simpleShader.attribLoc("pos"), 3, GLES20.GL_FLOAT, true, 24, 0);
 		GLES20.glVertexAttribPointer(simpleShader.attribLoc("col"), 3, GLES20.GL_FLOAT, true, 24, 12);
 		GLES20.glDrawArrays(GLES20.GL_LINES, 0, 6);
 		buffers.unBind(GLES20.GL_ARRAY_BUFFER);
 		simpleShader.unUse();
+		
 		
 		// FIELD
 		boxShader.use();
@@ -273,6 +278,26 @@ public class MyRenderer implements Renderer {
 		textures.unbind();
 		buffers.unBind(GLES20.GL_ARRAY_BUFFER);
 		objShader.unUse();
+		
+		// SUN
+		GLES20.glEnable(GLES20.GL_BLEND);
+		GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE);
+		textureShader.use();
+		buffers.bind("cquad", GLES20.GL_ARRAY_BUFFER);
+		modelMatrix.setBillboardMatrix(camposx + cameraX, camposy + cameraY, camposz + cameraZ, 5.0f * 2.0f, 4.0f * 2.0f, 3.0f * 2.0f, camupx, camupy, camupz)
+			.scale(7.0f, 7.0f, 1.0f);
+		mvMatrix.setProduction(viewMatrix, modelMatrix);
+		textures.bind("sun");
+		textureShader.setUniform1i("decal", 0);
+		textureShader.setUniformMatrix4f("modelview_matrix", mvMatrix);
+		textureShader.setUniformMatrix4f("projection_matrix", perspectiveMatrix);
+		textureShader.enableVertexAttribArrays("pos", "tc");
+		GLES20.glVertexAttribPointer(skyboxShader.attribLoc("pos"), 2, GLES20.GL_FLOAT, true, 0, 0);
+		GLES20.glVertexAttribPointer(skyboxShader.attribLoc("tc"),  2, GLES20.GL_FLOAT, true, 0, 12 * 4);
+		GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+		buffers.unBind(GLES20.GL_ARRAY_BUFFER);
+		textureShader.unUse();
+		GLES20.glDisable(GLES20.GL_BLEND);
 		
 		// UI
 		GLES20.glViewport(0, 0, (int)width, (int)height);
@@ -402,6 +427,8 @@ public class MyRenderer implements Renderer {
 		textures.load("floor", R.drawable.floor);
 		textures.load("lightfloor", R.drawable.lightfloor);
 		textures.load("mix", R.drawable.mix);
+		
+		textures.load("sun", R.drawable.sun);
 		System.gc();
 		Log.d("FUCK", "Memory usage after loading textures: " + AndroidOpenGLActivity.getUsedMemorySize());
 		
@@ -410,6 +437,7 @@ public class MyRenderer implements Renderer {
 		objShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "objshader");
 		buttonShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "buttonshader");
 		skyboxShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "skyboxshader");
+		textureShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "textureshader");
 	
 		buffers = new VertexBufferHolder();
 		buffers.load("basis", new float[]{
@@ -447,6 +475,17 @@ public class MyRenderer implements Renderer {
 		robot.deleteData();
 		Log.d("FUCK", "End loading R2D2.");
 		Log.d("FUCK", "Memory usage after loading all: " + AndroidOpenGLActivity.getUsedMemorySize());
+		
+		ImmutableRobot immutableRobot = world.getCurrentRobotState();
+		GameField gameField = world.getGameField();
+		
+		cameraX = immutableRobot.getPosX() - gameField.getSizeX() * 0.5f;
+		cameraY = immutableRobot.getPosY() + 0.25f + robotDeltaY;
+		cameraZ = immutableRobot.getPosZ() - gameField.getSizeZ() * 0.5f;
+		
+		cameraRadius = 5.0f;
+		cameraPhi = (float) (Math.PI / 3.0f);
+		cameraTheta = (float) (Math.PI / 6.0f);
 	}
 
 	public int getFPS() {
