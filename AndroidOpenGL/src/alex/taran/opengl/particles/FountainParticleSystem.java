@@ -8,6 +8,7 @@ import java.util.Random;
 
 import alex.taran.utils.Matrix4;
 import alex.taran.utils.Vector3;
+import android.util.Log;
 
 public class FountainParticleSystem {
 	private static final Random random = new Random(System.currentTimeMillis());
@@ -18,20 +19,30 @@ public class FountainParticleSystem {
 	public float particleSize;
 	public float minFade;
 	public float maxFade;
+	public float minVelocity;
+	public float maxVelocity;
 	public float emitAngle;
 	public final Vector3 position = new Vector3();
 	public final Vector3 gravity = new Vector3();
 	
-	private Vector3 direction;
+	private final Vector3 direction = new Vector3();
 	
 	public void update(float deltaTime) {
 		for (FountainParticle p :particles) {
-			p.life -= p.fade;
-			if (p.life < 0.0f) {
+			if (p.exists) {
+				p.life -= p.fade * deltaTime;
+				if (p.life < 0.0f) {
+					if (resurrection) {
+						resurrectParticle(p);
+					} else {
+						p.exists = false;
+					}
+				} else {
+					p.position.addmul(p.velocity, deltaTime);
+					p.velocity.addmul(gravity, deltaTime);
+				}
+			} else if (resurrection) {
 				resurrectParticle(p);
-			} else {
-				//p.position.add(p.velocity * deltaTime)
-				//p.velocity.add(gravity * deltaTime)
 			}
 		}
 	}
@@ -42,9 +53,26 @@ public class FountainParticleSystem {
 		particle.life = 1.0f;
 		particle.size = particleSize;
 		particle.position.set(position);
-		// TODO: fix it
-		Vector3 v = Vector3.createOrthoUnitRandom(direction).mul(/**/emitAngle).add(direction).normalize();
-		particle.velocity = v;
+		Vector3 v = Vector3.createOrthoUnitRandom(direction).mul((float)Math.tan(emitAngle)).add(direction).normalize();
+		v.mul(minVelocity + (maxVelocity - minVelocity) * random.nextFloat());
+		particle.velocity.set(v);
+		//Log.d("FUCK", "Resurrected particle: " + particle);
+	}
+	
+	public FountainParticleSystem initialize(int numParticles) {
+		particles.clear();
+		for (int i = 0; i < numParticles; ++i) {
+			FountainParticle p = new FountainParticle();
+			resurrectParticle(p);
+			particles.add(p);
+		}
+		return this;
+	}
+	
+	public FountainParticleSystem setVelocities(float minVelocity, float maxVelocity) {
+		this.minVelocity = minVelocity;
+		this.maxVelocity = maxVelocity;
+		return this;
 	}
 	
 	public FountainParticleSystem setFades(float minFade, float maxFade) {
@@ -89,7 +117,7 @@ public class FountainParticleSystem {
 	}
 	
 	public FountainParticleSystem setGravity(float x, float y, float z) {
-		gravity.set(x, y, z).normalize();
+		gravity.set(x, y, z);
 		return this;
 	}
 	
@@ -102,20 +130,22 @@ public class FountainParticleSystem {
 		return this;
 	}
 	
-	public void sortParticles(Vector3 lookDirection) {
-		comparator.setLookDirection(lookDirection);
+	public void sortParticles(float cameraDirectionX, float cameraDirectionY, float cameraDirectionZ) {
+		comparator.cameraDirection.set(cameraDirectionX, cameraDirectionY, cameraDirectionZ);
 		Collections.sort(particles, comparator);
 	}
 	
+	public void sortParticles(Vector3 cameraPosition) {
+		sortParticles(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+	}
+	
 	public class FountainParticleComparator implements Comparator<FountainParticle> {
-		public Vector3 lookDirection;
-		public void setLookDirection(Vector3 lookDirection) {
-			this.lookDirection = lookDirection;
-		}
+		public final Vector3 cameraDirection = new Vector3();
+		
 		@Override
 		public int compare(FountainParticle lhs, FountainParticle rhs) {
-			float dl = lhs.position.dot(lookDirection);
-			float dr = rhs.position.dot(lookDirection);
+			float dl = lhs.position.dot(cameraDirection);
+			float dr = rhs.position.dot(cameraDirection);
 			if (dl < dr) {
 				return 1;
 			} else if (dl > dr) {

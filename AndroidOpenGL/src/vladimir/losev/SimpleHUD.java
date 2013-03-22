@@ -68,7 +68,8 @@ public class SimpleHUD implements HUD {
 		x = 0;
 		y = elementMargin;
 		
-		elements.add(new HUDButtonElement(0.325f * this.screenWidth - 50, 0.9f * screenHeight - 100,  0.325f  * screenWidth + 50, 0.9f * screenHeight + 100, onStart));
+		elements.add(new HUDButtonElement(0.75f * screenWidth - 2 * elementSize, screenHeight - 2 * elementSize,
+				0.75f * screenWidth, screenHeight, onStart));
 		
 		elements.add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.ROTATE_LEFT, null));
 		x += elementSize;
@@ -81,6 +82,8 @@ public class SimpleHUD implements HUD {
 		elements.add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.CALL_A, null));
 		x += elementSize;
 		elements.add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.CALL_B, null));
+		x += elementSize;
+		elements.add(new HUDDraggableElement(x, y, x + elementSize, y + elementSize, Command.JUMP, null));
 	}	
 
 		
@@ -131,18 +134,26 @@ public class SimpleHUD implements HUD {
 			case MotionEvent.ACTION_CANCEL:
 			case MotionEvent.ACTION_UP:
 			case MotionEvent.ACTION_OUTSIDE:
+				motionCaptured = false;
 				onReleaseDragging();
 				return true;
 			}
 		} else {
 			switch (action) {
-			//case MotionEvent.ACTION_MOVE:
+			case MotionEvent.ACTION_MOVE:
+				if (motionCaptured) {
+					return true;
+				} else {
+					return false;
+				}
 			case MotionEvent.ACTION_DOWN:
 				for (HUDElement element : elements) {
 					if (element instanceof HUDDraggableElement & element.contains(x, y)) {
+						motionCaptured = true;
 						startDragging((HUDDraggableElement) element, x, y);
 						return true;
 					} else if (element instanceof HUDButtonElement & element.contains(x, y)) {
+						motionCaptured = true;
 						HUDButtonElement button = ((HUDButtonElement) element);
 						button.run();
 						if (button.function.equals(onStart)) {
@@ -153,7 +164,15 @@ public class SimpleHUD implements HUD {
 						return true;
 					}
 				}
+				break;
+			case MotionEvent.ACTION_CANCEL:
+			case MotionEvent.ACTION_UP:
+			case MotionEvent.ACTION_OUTSIDE:
+				motionCaptured = false;
+				return true;
+			
 			}
+			
 		}
 
 		return false;
@@ -316,6 +335,7 @@ public class SimpleHUD implements HUD {
 	private RectF originalPos;
 	
 	long currTime;
+	private boolean motionCaptured = false;
 	
 	private int[] capacities;
 	private float[] yOffsets;

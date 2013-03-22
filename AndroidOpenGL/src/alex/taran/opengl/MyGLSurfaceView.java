@@ -114,6 +114,7 @@ public class MyGLSurfaceView extends GLSurfaceView {
 			if (pointerCount >=1 && pointerCount <=3) {
 				onFinishManipulation(ControlMode.byNumFungers(pointerCount), m);
 			}
+			lastPointerCount = pointerCount;
 		}
 		/*
 		if (m.getAction() == MotionEvent.ACTION_DOWN) {

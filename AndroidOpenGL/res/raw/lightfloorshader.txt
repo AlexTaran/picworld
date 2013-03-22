@@ -14,6 +14,7 @@ varying vec3 nrm_;
 varying vec3 light_vec_;
 varying vec3 cam_vec_;
 varying vec3 half_vec_;
+varying vec3 wpos_;
 
 void main(){
     vec3 light_pos = vec3(5.0, 4.0, 3.0);
@@ -25,6 +26,8 @@ void main(){
     light_vec_ = light_pos - pos; 
     cam_vec_ = cam_pos - pos;
     half_vec_ = normalize(light_pos - pos) + normalize(cam_pos - pos);
+    //emit_dist_ = distance(pos, emit_center);
+    wpos_ = pos;
 }
 
 ###FRAGMENT
@@ -32,16 +35,19 @@ void main(){
 precision mediump float;
 
 uniform sampler2D decal;
+uniform float emittance;
+uniform vec3 emit_center;
 
 varying vec2 tc_;
 varying vec3 nrm_;
 varying vec3 light_vec_;
 varying vec3 cam_vec_;
 varying vec3 half_vec_;
+varying vec3 wpos_;
 
 void main(){
-    vec3 ambient = vec3(0.2, 0.2, 0.2);
-    vec3 diffuse = vec3(0.8, 0.8, 0.8);
+    vec3 ambient = vec3(0.4, 0.4, 0.4);
+    vec3 diffuse = vec3(0.6, 0.6, 0.6);
     
     vec3 color = texture2D(decal, tc_.xy).rgb;
     
@@ -53,6 +59,8 @@ void main(){
     float specular = 16.0;
     float diff_koef = max(0.0, dot(nrm, light_dir));
     float spec_koef = pow(max(dot(nrm, half_vec), 0.0), specular);
+    vec3 spec = vec3(spec_koef, spec_koef, spec_koef);
+    spec = spec + vec3(1.5, 0.2, 1.5) * emittance * clamp(1.0 - length(wpos_ - emit_center) * 2.0, 0.0, 1.0);
     //float spec_koef = pow(max(dot(nrm, refl), 0.0), specular);
-    gl_FragColor = vec4(color * (ambient + diffuse * diff_koef + vec3(spec_koef, spec_koef, spec_koef)), 1.0);
+    gl_FragColor = vec4(color * (ambient + diffuse * diff_koef + spec), 1.0);
 }

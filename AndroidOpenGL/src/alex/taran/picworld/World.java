@@ -1,29 +1,35 @@
 package alex.taran.picworld;
 
+import android.util.Log;
+
 
 public class World {
 	public enum WorldState {
+		FINISHED,
+		CRASHED,
 		STOPPED,
 		EXECUTION,
 	}
 	
 	public World(GameField gameField, Robot initRobot) {
-		this.gameField = gameField;
+		this.initGameField = gameField;
 		this.initRobot = initRobot;
-		resetRobot();
+		resetLevel();
 	}
 	
 	public void beginExecution(Program program) {
 		this.program = program;
 		this.program.beginExecution();
-		worldState = WorldState.EXECUTION;
+		if (this.program.hasRemainingCommand() && validateCommand(program.getCurrentCommand())) {
+			worldState = WorldState.EXECUTION;
+		}
 		completionOperationProgress = 0.0f;
-		resetRobot();
+		resetLevel();
 	}
 	
 	public void interruptExecution() {
 		worldState = WorldState.STOPPED;
-		resetRobot();
+		resetLevel();
 	}
 	
 	public WorldState getWorldState() {
@@ -50,6 +56,15 @@ public class World {
 		robot = initRobot.clone();
 	}
 	
+	private void resetGameField() {
+		gameField = new GameField(initGameField);
+	}
+	
+	private void resetLevel() {
+		resetRobot();
+		resetGameField();
+	}
+	
 	public void update(float deltaTime) {
 		if (worldState != WorldState.EXECUTION) {
 			return;
@@ -59,8 +74,13 @@ public class World {
 		while (completionOperationProgress >= 1.0f && program.hasRemainingCommand()) {
 			completionOperationProgress -= 1.0f;
 			executeCommand(program.getCurrentCommand());
-			if(!program.nextCommand() || !validateCommand(program.getCurrentCommand())) {
-				worldState = WorldState.STOPPED;
+			if(!program.nextCommand()) {
+				worldState = WorldState.FINISHED;
+				completionOperationProgress = 0.0f;
+				return;
+			}
+			if(!validateCommand(program.getCurrentCommand())) {
+				worldState = WorldState.CRASHED;
 				completionOperationProgress = 0.0f;
 				return;
 			}
@@ -138,4 +158,5 @@ public class World {
 	private WorldState worldState = WorldState.STOPPED;
 	private float completionOperationProgress;
 	private final Robot initRobot;
+	private final GameField initGameField;
 }

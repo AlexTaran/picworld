@@ -102,6 +102,13 @@ public class Vector3 implements Cloneable, ImmutableVector3{
 		return this;
 	}
 	
+	public Vector3 addmul(Vector3 other, float k) {
+		this.x += other.x * k;
+		this.y += other.y * k;
+		this.z += other.z * k;
+		return this;
+	}
+	
 	public float dot(Vector3 other) {
 		return x * other.x + y * other.y + z * other.z;
 	}
@@ -185,5 +192,22 @@ public class Vector3 implements Cloneable, ImmutableVector3{
 	@Override
 	public float getZ() {
 		return z;
+	}
+	
+	@Override
+	public String toString() {
+		return "(" + x + ", " + y + ", " + z + ")";
+	}
+	
+	// interaction with matrix
+	public Vector3 transformBy(Matrix4 m) {
+		float nx = m.data[0] * x + m.data[4] * y + m.data[8] * z + m.data[12];
+		float ny = m.data[1] * x + m.data[5] * y + m.data[9] * z + m.data[13];
+		float nz = m.data[2] * x + m.data[6] * y + m.data[10] * z + m.data[14];
+		float nw = m.data[3] * x + m.data[7] * y + m.data[11] * z + m.data[15];
+		x = nx / nw;
+		y = ny / nw;
+		z = nz / nw;
+		return this;
 	}
 }

@@ -1,0 +1,57 @@
+###VERTEX
+
+uniform mat4 view_matrix;
+uniform mat4 projection_matrix;
+
+//uniform vec3 cam_pos;
+uniform vec3 cam_up;
+uniform vec3 particle_pos;
+uniform vec3 cam_dir;
+
+attribute vec3 pos;
+attribute vec3 tc;
+
+varying vec3 tc_;
+
+mat4 calculate_model_matrix() {
+  //vec3 look = cam_pos - particle_pos;
+  vec3 look = -cam_dir;
+  vec3 right = normalize(cross(look, cam_up));
+  vec3 up = normalize(cross(look, right));
+  look = cross(right, up);
+  return mat4(vec4(right, 0.0), vec4(up, 0.0), vec4(look, 0.0), vec4(particle_pos, 1.0));
+}
+
+void main(){
+    mat4 model_matrix = calculate_model_matrix();
+    gl_Position = projection_matrix*view_matrix*model_matrix*vec4(pos.x,pos.y,pos.z,1.0);
+    tc_ = tc;
+}
+
+###FRAGMENT
+
+precision mediump float;
+
+uniform sampler2D decal;
+uniform float life;
+
+varying vec3 tc_;
+
+float appearancePoint = 0.9;
+// calculates alpha from life
+float calculateAlpha() {
+  if (life > appearancePoint) {
+    return (life - 1.0) / (appearancePoint - 1.0);
+  } else {
+    return life / appearancePoint;
+  }
+}
+
+void main(){
+  vec4 color = texture2D(decal, tc_.xy).rgba;
+  float a = color.a * calculateAlpha();
+  if (a < 0.05) {
+    discard;
+  }
+  gl_FragColor = vec4(color.xyz, a);
+}

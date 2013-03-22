@@ -13,6 +13,8 @@ import vladimir.losev.HUDElement;
 import vladimir.losev.HUDSlotElement;
 import vladimir.losev.SimpleHUD;
 import alex.taran.opengl.model.Model;
+import alex.taran.opengl.particles.FountainParticle;
+import alex.taran.opengl.particles.FountainParticleSystem;
 import alex.taran.opengl.utils.GLBuffers;
 import alex.taran.opengl.utils.ResourceUtils;
 import alex.taran.opengl.utils.Shader;
@@ -27,6 +29,7 @@ import alex.taran.picworld.Robot.ImmutableRobot;
 import alex.taran.picworld.World;
 import alex.taran.picworld.World.WorldState;
 import alex.taran.utils.Matrix4;
+import alex.taran.utils.Vector3;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
@@ -52,11 +55,14 @@ public class MyRenderer implements Renderer {
 	private Shader simpleShader;
 	private Shader boxShader;
 	private Shader objShader;
+	private Shader lightFloorShader;
 	private Shader buttonShader;
 	private Shader skyboxShader;
 	private Shader textureShader;
+	private Shader smokeShader;
 	
 	private ArrayList<HUDElement> hudElements;
+	private FountainParticleSystem fountainParticleSystem;
 	
 	public float cameraPhi;
 	public float cameraTheta;
@@ -174,15 +180,13 @@ public class MyRenderer implements Renderer {
 		
 		// FIELD
 		boxShader.use();
-		GLES20.glUniform1i(boxShader.uniformLoc("decal"), 0);
-		GLES20.glUniformMatrix4fv(boxShader.uniformLoc("projection_matrix"), 1, false, perspectiveMatrix.data, 0);
-		boxShader.enableVertexAttribArray("pos");
-		boxShader.enableVertexAttribArray("nrm");
-		boxShader.enableVertexAttribArray("tc");
+		boxShader.setUniform1i("decal", 0);
+		boxShader.setUniformMatrix4f("projection_matrix", perspectiveMatrix);
+		boxShader.enableVertexAttribArrays("pos", "nrm", "tc");
 		
 		buffers.bind("sidebox", GLES20.GL_ARRAY_BUFFER);
 		textures.bind("wall");
-		GLES20.glUniform3f(boxShader.uniformLoc("cam_pos"), camposx, camposy, camposz);
+		boxShader.setUniform3f("cam_pos", cameraX + camposx, cameraY + camposy, cameraZ + camposz);
 		GLES20.glVertexAttribPointer(boxShader.attribLoc("pos"), 3, GLES20.GL_FLOAT, true, 0,
 				buffers.getNamedOffset("sidebox", "vertices").offset);
 		GLES20.glVertexAttribPointer(boxShader.attribLoc("nrm"), 3, GLES20.GL_FLOAT, true, 0,
@@ -203,6 +207,8 @@ public class MyRenderer implements Renderer {
 				}
 			}
 		}
+		boxShader.unUse();
+		
 		
 		buffers.bind("topbox", GLES20.GL_ARRAY_BUFFER);
 		GLES20.glVertexAttribPointer(boxShader.attribLoc("pos"), 3, GLES20.GL_FLOAT, true, 0,
@@ -211,31 +217,75 @@ public class MyRenderer implements Renderer {
 				buffers.getNamedOffset("topbox", "normals").offset);
 		GLES20.glVertexAttribPointer(boxShader.attribLoc("tc"), 2, GLES20.GL_FLOAT, true, 0,
 				buffers.getNamedOffset("topbox", "texcoords").offset);
+		boxShader.use();
+		textures.bind("floor");
 		for (int i = 0; i < gameField.getSizeX(); ++i) {
 			for (int j = 0; j < gameField.getSizeZ(); ++j) {
+				modelMatrix.setIdentity().translate(i - gameField.getSizeX() * 0.5f, -0.25f, j - gameField.getSizeZ() * 0.5f).rotateX(180.0f);
+				mvMatrix.setProduction(viewMatrix, modelMatrix);
+				boxShader.setUniformMatrix4f("view_matrix", viewMatrix);
+				boxShader.setUniformMatrix4f("model_matrix", modelMatrix);
+				GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6 * 1);		
+				
 				int height = gameField.getCellAt(i, j).getHeight();
 				if (gameField.getCellAt(i, j).getLightState() == CellLightState.NO_LIGHT) {
-					textures.bind("floor");
-				} else {
-					textures.bind("lightfloor");
+					modelMatrix.setIdentity().translate(i - gameField.getSizeX() * 0.5f, height * 0.5f + 0.25f, j - gameField.getSizeZ() * 0.5f);
+					mvMatrix.setProduction(viewMatrix, modelMatrix);
+					boxShader.setUniformMatrix4f("view_matrix", viewMatrix);
+					boxShader.setUniformMatrix4f("model_matrix", modelMatrix);
+					GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6 * 1);
 				}
-				modelMatrix.setIdentity().translate(i - gameField.getSizeX() * 0.5f, height * 0.5f + 0.25f, j - gameField.getSizeZ() * 0.5f);
-				mvMatrix.setProduction(viewMatrix, modelMatrix);
-				boxShader.setUniformMatrix4f("view_matrix", viewMatrix);
-				boxShader.setUniformMatrix4f("model_matrix", modelMatrix);
-				GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6 * 1);
-				
-				textures.bind("floor");
-				modelMatrix.setIdentity().translate(i - gameField.getSizeX() * 0.5f, -0.25f, j - gameField.getSizeZ() * 0.5f).invY();
-				mvMatrix.setProduction(viewMatrix, modelMatrix);
-				boxShader.setUniformMatrix4f("view_matrix", viewMatrix);
-				boxShader.setUniformMatrix4f("model_matrix", modelMatrix);
-				GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6 * 1);
+			}
+		}
+		lightFloorShader.use();
+		lightFloorShader.enableVertexAttribArrays("pos", "tc", "nrm");
+		textures.bind("lightfloor");
+		lightFloorShader.setUniform1i("decal", 0);
+		lightFloorShader.setUniform3f("cam_pos", cameraX + camposx, cameraY + camposy, cameraZ + camposz);
+		lightFloorShader.setUniformMatrix4f("projection_matrix", perspectiveMatrix);
+		GLES20.glVertexAttribPointer(lightFloorShader.attribLoc("pos"), 3, GLES20.GL_FLOAT, true, 0,
+				buffers.getNamedOffset("topbox", "vertices").offset);
+		GLES20.glVertexAttribPointer(lightFloorShader.attribLoc("nrm"), 3, GLES20.GL_FLOAT, true, 0,
+				buffers.getNamedOffset("topbox", "normals").offset);
+		GLES20.glVertexAttribPointer(lightFloorShader.attribLoc("tc"), 2, GLES20.GL_FLOAT, true, 0,
+				buffers.getNamedOffset("topbox", "texcoords").offset);
+		int togglingX = -1;
+		int togglingZ = -1;
+		float togglingEmittance = 0.0f;
+		if (world.getWorldState() == WorldState.EXECUTION) {
+			float f = world.getCompletionOperationProgress();
+			if (world.getCurrentRunningCommand() == Command.TOGGLE_LIGHT) {
+				togglingX = world.getCurrentRobotState().getPosX();
+				togglingZ = world.getCurrentRobotState().getPosZ();
+				if (gameField.getCellAt(togglingX, togglingZ).getLightState() == CellLightState.LIGHT_ON) {
+					togglingEmittance = 1.0f - f;
+				} else {
+					togglingEmittance = f;
+				}
+			}
+		}
+		for (int i = 0; i < gameField.getSizeX(); ++i) {
+			for (int j = 0; j < gameField.getSizeZ(); ++j) {
+				if (gameField.getCellAt(i, j).getLightState() != CellLightState.NO_LIGHT) {
+					int height = gameField.getCellAt(i, j).getHeight();
+					if (i == togglingX && j == togglingZ) {
+						lightFloorShader.setUniform1f("emittance", togglingEmittance);
+					} else if (gameField.getCellAt(i, j).getLightState() == CellLightState.LIGHT_ON) {
+						lightFloorShader.setUniform1f("emittance", 1.0f);
+					} else {
+						lightFloorShader.setUniform1f("emittance", 0.0f);
+					}
+					lightFloorShader.setUniform3f("emit_center", i - gameField.getSizeX() * 0.5f, height * 0.5f + 0.25f, j - gameField.getSizeZ() * 0.5f);
+					modelMatrix.setIdentity().translate(i - gameField.getSizeX() * 0.5f, height * 0.5f + 0.25f, j - gameField.getSizeZ() * 0.5f);
+					mvMatrix.setProduction(viewMatrix, modelMatrix);
+					lightFloorShader.setUniformMatrix4f("view_matrix", viewMatrix);
+					lightFloorShader.setUniformMatrix4f("model_matrix", modelMatrix);
+					GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6 * 1);
+				}
 			}
 		}
 		textures.unbind();
-		
-		boxShader.unUse();
+		Shader.unUse();
 		
 		// ROBOT
 		
@@ -248,23 +298,9 @@ public class MyRenderer implements Renderer {
 		objShader.setUniformMatrix4f("projection_matrix", perspectiveMatrix);
 		objShader.setUniformMatrix4f("view_matrix", viewMatrix);
 		ImmutableRobot immutableRobot = world.getCurrentRobotState();
-		modelMatrix.setIdentity().translate(immutableRobot.getPosX() - gameField.getSizeX() * 0.5f, immutableRobot.getPosY() + 0.25f + robotDeltaY, immutableRobot.getPosZ() - gameField.getSizeZ() * 0.5f);
-		modelMatrix.rotateY(-90.0f + immutableRobot.getLookDirection().getRotationDegreesFromPosX());
-		if (world.getWorldState() == WorldState.EXECUTION) {
-			float f = world.getCompletionOperationProgress();
-			switch (world.getCurrentRunningCommand()) {
-			case MOVE_FORWARD:
-				modelMatrix.translate(0.0f, 0.0f, -f);
-				break;
-			case ROTATE_LEFT:
-				modelMatrix.rotateY(90.0f * f);
-				break;
-			case ROTATE_RIGHT:
-				modelMatrix.rotateY(-90.0f * f);
-				break;
-			}
-		}
-		objShader.setUniformMatrix4f("model_matrix", modelMatrix);
+		Matrix4 robotModelMatrix = calculateCurrentRobotWorldMatrix();
+	
+		objShader.setUniformMatrix4f("model_matrix", robotModelMatrix);
 		for (String s: robot.getGroupNames()) {
 			buffers.bind("r2d2_obj::" + s, GLES20.GL_ARRAY_BUFFER);
 			int basePos = 0;
@@ -299,6 +335,32 @@ public class MyRenderer implements Renderer {
 		textureShader.unUse();
 		GLES20.glDisable(GLES20.GL_BLEND);
 		
+		// SMOKE
+		GLES20.glEnable(GLES20.GL_BLEND);
+		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+		smokeShader.use();
+		textures.bind("smoke");
+		smokeShader.enableVertexAttribArrays("pos", "tc");
+		buffers.bind("cquad", GLES20.GL_ARRAY_BUFFER);
+		GLES20.glVertexAttribPointer(smokeShader.attribLoc("pos"), 2, GLES20.GL_FLOAT, true, 0, 0);
+		GLES20.glVertexAttribPointer(smokeShader.attribLoc("tc"),  2, GLES20.GL_FLOAT, true, 0, 12 * 4);
+		smokeShader.setUniform1i("decal", 0);
+		smokeShader.setUniformMatrix4f("view_matrix", viewMatrix);
+		smokeShader.setUniformMatrix4f("projection_matrix", perspectiveMatrix);
+		//smokeShader.setUniform3f("cam_pos", camposx + cameraX, camposy + cameraY, camposz + cameraZ);
+		smokeShader.setUniform3f("cam_dir", -camposx, -camposy, -camposz);
+		smokeShader.setUniform3f("cam_up", camupx, camupy, camupz);
+		
+		for (FountainParticle p: fountainParticleSystem.particles) {
+			smokeShader.setUniform3f("particle_pos", p.position);
+			smokeShader.setUniform1f("life", p.life);
+			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+		}
+		
+		buffers.unBind(GLES20.GL_ARRAY_BUFFER);
+		smokeShader.unUse();
+		GLES20.glDisable(GLES20.GL_BLEND);
+		
 		// UI
 		GLES20.glViewport(0, 0, (int)width, (int)height);
 		GLES20.glClear(GLES20.GL_DEPTH_BUFFER_BIT);
@@ -321,6 +383,7 @@ public class MyRenderer implements Renderer {
 				case ROTATE_RIGHT: textures.bind("command_right");   break;
 				case MOVE_FORWARD: textures.bind("command_forward"); break;
 				case TOGGLE_LIGHT: textures.bind("command_light");   break;
+				case JUMP:         textures.bind("command_jump");    break;
 				case CALL_A:       textures.bind("command_run_a");   break;
 				case CALL_B:       textures.bind("command_run_b");   break;
 				}
@@ -353,6 +416,14 @@ public class MyRenderer implements Renderer {
 			
 			float deltaTime = (curr - lastTimeWorldUpdated) / 1000.0f;
 			world.update(deltaTime);
+			fountainParticleSystem.update(deltaTime);
+			fountainParticleSystem.setPosition(
+					immutableRobot.getPosX() - gameField.getSizeX() * 0.5f,
+					immutableRobot.getPosY() * 0.5f + 0.25f + robotDeltaY,
+					immutableRobot.getPosZ() - gameField.getSizeZ() * 0.5f);
+			fountainParticleSystem.setPosition(new Vector3().transformBy(robotModelMatrix));
+			//fountainParticleSystem.sortParticles(camposx, camposy, camposz);
+			fountainParticleSystem.sortParticles(-camposx, -camposy, -camposz);
 			lastTimeWorldUpdated = curr;
 			
 			if (curr - lastTimeFPSUpdated >= 1000) {
@@ -410,6 +481,7 @@ public class MyRenderer implements Renderer {
 		textures.load("icon_go", R.drawable.icon_go);
 		textures.load("empty_slot", R.drawable.empty_slot);
 		textures.load("command_forward", R.drawable.command_forward);
+		textures.load("command_jump", R.drawable.command_jump);
 		textures.load("command_left", R.drawable.command_left);
 		textures.load("command_right", R.drawable.command_right);
 		textures.load("command_light", R.drawable.command_light);
@@ -429,15 +501,18 @@ public class MyRenderer implements Renderer {
 		textures.load("mix", R.drawable.mix);
 		
 		textures.load("sun", R.drawable.sun);
+		textures.load("smoke", R.drawable.smoke);
 		System.gc();
 		Log.d("FUCK", "Memory usage after loading textures: " + AndroidOpenGLActivity.getUsedMemorySize());
 		
 		simpleShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "simpleshader");
 		boxShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "boxshader");
 		objShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "objshader");
+		lightFloorShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "lightfloorshader");
 		buttonShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "buttonshader");
 		skyboxShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "skyboxshader");
 		textureShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "textureshader");
+		smokeShader = Shader.loadFromResource(AndroidOpenGLActivity.getContext(), "smokeshader");
 	
 		buffers = new VertexBufferHolder();
 		buffers.load("basis", new float[]{
@@ -486,9 +561,56 @@ public class MyRenderer implements Renderer {
 		cameraRadius = 5.0f;
 		cameraPhi = (float) (Math.PI / 3.0f);
 		cameraTheta = (float) (Math.PI / 6.0f);
+		
+		fountainParticleSystem = new FountainParticleSystem()
+			.setDirection(0.0f, 1.0f, 0.0f)
+			.setEmitAngle(0.35f)
+			.setFades(0.2f, 0.4f)
+			.setVelocities(0.25f, 0.4f)
+			.setGravity(0.0f, -0.06f, 0.0f)
+			.setPosition(cameraX, cameraY, cameraZ)
+			.setParticleSize(0.5f)
+			.setResurrection(true)
+			.initialize(30);
 	}
 
 	public int getFPS() {
 		return lastFPS;
+	}
+	
+	private Matrix4 calculateCurrentRobotWorldMatrix() {
+		ImmutableRobot immutableRobot = world.getCurrentRobotState();
+		GameField gameField = world.getGameField();
+		Matrix4 modelMatrix = new Matrix4();
+		modelMatrix.setIdentity().translate(immutableRobot.getPosX() - gameField.getSizeX() * 0.5f, immutableRobot.getPosY() * 0.5f + 0.25f + robotDeltaY, immutableRobot.getPosZ() - gameField.getSizeZ() * 0.5f);
+		modelMatrix.rotateY(-90.0f + immutableRobot.getLookDirection().getRotationDegreesFromPosX());
+		if (world.getWorldState() == WorldState.EXECUTION) {
+			float f = world.getCompletionOperationProgress();
+			switch (world.getCurrentRunningCommand()) {
+			case MOVE_FORWARD: {
+				modelMatrix.translate(0.0f, 0.0f, -f);
+				break;
+			}
+			case ROTATE_LEFT: {
+				modelMatrix.rotateY(90.0f * f);
+				break;
+			}
+			case ROTATE_RIGHT: {
+				modelMatrix.rotateY(-90.0f * f);
+				break;
+			}
+			case JUMP: {
+				int nextCellX = immutableRobot.getPosX() + immutableRobot.getLookDirection().getLookX();
+				int nextCellZ = immutableRobot.getPosZ() + immutableRobot.getLookDirection().getLookZ();
+				float deltaHeight = gameField.getCellAt(nextCellX, nextCellZ).getHeight() - 
+						gameField.getCellAt(immutableRobot.getPosX(), immutableRobot.getPosZ()).getHeight();
+				Vector3 offset = Vector3.bezier(new Vector3(0.0f, 0.0f,0.0f), new Vector3(0.0f, 2.0f, 0.0f),
+						new Vector3(0.0f, deltaHeight * 0.5f + 1.5f, -1.0f), new Vector3(0.0f, deltaHeight * 0.5f, -1.0f), f);
+				modelMatrix.translate(offset);
+				break;
+			}
+			}
+		}
+		return modelMatrix;
 	}
 }

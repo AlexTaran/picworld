@@ -1,6 +1,6 @@
 package alex.taran.picworld;
 
-public class GameField {
+public class GameField implements Cloneable{
 	public enum CellLightState {
 		NO_LIGHT, LIGHT_ON, LIGHT_OFF;
 		
@@ -36,6 +36,23 @@ public class GameField {
 		}
 	}
 	
+	// Copy ctor
+	public GameField(GameField other) {
+		this.sizeX = other.sizeX;
+		this.sizeZ = other.sizeZ;
+		this.cells = new Cell[sizeX][];
+		
+		for (int i = 0; i < sizeX; ++i) {
+			cells[i] = new Cell[sizeZ];
+		}
+		
+		for (int i = 0; i < sizeX; ++i) {
+			for (int j = 0; j < sizeZ; ++j) {
+				cells[i][j] = new Cell(other.cells[i][j]);
+			}
+		}
+	}
+	
 	public int getSizeX() {
 		return sizeX;
 	}
@@ -57,6 +74,11 @@ public class GameField {
 		public Cell(int height, CellLightState lightState) {
 			this.height = height;
 			this.lightState = lightState;
+		}
+		
+		public Cell(Cell other) {
+			this.height = other.height;
+			this.lightState = other.lightState;
 		}
 		
 		public int getHeight() {
