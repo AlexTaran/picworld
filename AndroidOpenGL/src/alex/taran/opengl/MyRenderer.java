@@ -15,6 +15,7 @@ import vladimir.losev.SimpleHUD;
 import alex.taran.opengl.model.Model;
 import alex.taran.opengl.particles.FountainParticle;
 import alex.taran.opengl.particles.FountainParticleSystem;
+import alex.taran.opengl.utils.FrameBufferHolder;
 import alex.taran.opengl.utils.GLBuffers;
 import alex.taran.opengl.utils.ResourceUtils;
 import alex.taran.opengl.utils.Shader;
@@ -43,9 +44,10 @@ public class MyRenderer implements Renderer {
 	private int lastFPS = 0;
 	private long lastTimeFPSUpdated = -1;
 	private long lastTimeWorldUpdated = -1;
-	private float width, height;
+	private int width, height;
 
 	private TextureHolder textures;
+	private FrameBufferHolder frameBuffers;
 	private VertexBufferHolder buffers;
 	private Model robot;
 	
@@ -470,11 +472,11 @@ public class MyRenderer implements Renderer {
 		GLES20.glClearDepthf(1.0f);
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		GLES20.glDepthFunc(GLES20.GL_LEQUAL);
-		GLES20.glEnable(GLES20.GL_TEXTURE_2D);
-
+		
 		Log.d("FUCK", "Initial memory usage: " + AndroidOpenGLActivity.getUsedMemorySize());
 		// TODO(alex): implement automatic texture loader
 		textures = new TextureHolder();
+		frameBuffers = new FrameBufferHolder();
 
 		textures.load("icon_scaling", R.drawable.icon_scaling);
 		textures.load("icon_select", R.drawable.icon_select);
@@ -502,6 +504,21 @@ public class MyRenderer implements Renderer {
 		
 		textures.load("sun", R.drawable.sun);
 		textures.load("smoke", R.drawable.smoke);
+		
+		
+		textures.createEmpty("fbo_depth", 1024, 1024, GLES20.GL_DEPTH_COMPONENT, GLES20.GL_DEPTH_COMPONENT);
+		Log.d("FUCK", "GL error: " + GLES20.glGetError());
+		textures.createEmpty("fbo_color", 1024, 1024, GLES20.GL_RGBA, GLES20.GL_RGBA);
+		Log.d("FUCK", "GL error: " + GLES20.glGetError());
+		
+		frameBuffers.create("fbo");
+		frameBuffers.bind("fbo");
+		//textures.attachToCurrentFrameBuffer("fbo_depth", GLES20.GL_DEPTH_ATTACHMENT);
+		Log.d("FUCK", "GL error: " + GLES20.glGetError());
+		textures.attachToCurrentFrameBuffer("fbo_color", GLES20.GL_COLOR_ATTACHMENT0);
+		Log.d("FUCK", "GL error: " + GLES20.glGetError());
+		Log.i("FUCK", "Framebuffer status: " + frameBuffers.getCurrentStatusString());
+		frameBuffers.unbind();
 		System.gc();
 		Log.d("FUCK", "Memory usage after loading textures: " + AndroidOpenGLActivity.getUsedMemorySize());
 		

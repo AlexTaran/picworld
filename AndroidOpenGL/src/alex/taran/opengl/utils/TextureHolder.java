@@ -1,5 +1,6 @@
 package alex.taran.opengl.utils;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,8 +12,9 @@ import android.opengl.GLES20;
 import android.opengl.GLUtils;
 import android.util.Log;
 
-public class TextureHolder extends Holder{
-	private int[] temp = new int[1]; // for temporary texture ID
+public class TextureHolder extends Holder {
+	private final int[] temp = new int[1]; // for temporary texture ID
+	private final ByteBuffer tempBuffer = ByteBuffer.allocateDirect(0);
 	private Map<String,Integer> textures = new HashMap<String,Integer>();
 	
 	public TextureHolder() {
@@ -54,16 +56,37 @@ public class TextureHolder extends Holder{
 		    GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,GLES20.GL_CLAMP_TO_EDGE);
 		}
 		GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
-		
+
 		bitmap.recycle();
 		textures.put(s, temp[0]);
 		unbind();
 	}
 	
+	public void createEmpty(String s, int sizeX, int sizeY, int internalFormat, int format) {
+		delete(s);
+		GLES20.glGenTextures(1, temp, 0);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, temp[0]);
+		GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+		GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S,GLES20.GL_CLAMP_TO_EDGE);
+	    GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,GLES20.GL_CLAMP_TO_EDGE);
+	    GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, internalFormat, sizeX, sizeY, 0, format,
+	    		GLES20.GL_UNSIGNED_BYTE, null);
+		textures.put(s, temp[0]);
+		unbind();
+	}
+	
+	public void attachToCurrentFrameBuffer(String tex, int attachmentType) {
+		Integer i = textures.get(tex);
+		if (i != null) {
+			GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, attachmentType, GLES20.GL_TEXTURE_2D, i, 0);
+		}
+	}
+	
 	public void delete(String s){
 		Integer i = textures.get(s);
-		if(i!=null){
-			temp[0]=i;
+		if (i != null) {
+			temp[0] = i;
 			GLES20.glDeleteTextures(1, temp, 0);
 			textures.remove(s);
 		}
@@ -71,8 +94,8 @@ public class TextureHolder extends Holder{
 	
 	@Override
 	public void clear(){
-		for(Integer i:textures.values()){
-			temp[0]=i;
+		for (Integer i: textures.values()) {
+			temp[0] = i;
 			GLES20.glDeleteTextures(1, temp, 0);
 		}
 		textures.clear();
