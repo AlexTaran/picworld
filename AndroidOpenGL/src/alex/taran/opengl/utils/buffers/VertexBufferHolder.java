@@ -15,6 +15,8 @@ import alex.taran.opengl.utils.Holder;
 import android.opengl.GLES20;
 import android.util.Log;
 
+// This class is deprecated and will be deleted when MeshHolder is ready
+@Deprecated
 public class VertexBufferHolder extends Holder {
 	private final int BUFFER_CAPACITY = 20000; // in floats. It's size is 80kb = 20K x 4
 	private final FloatBuffer buffer;

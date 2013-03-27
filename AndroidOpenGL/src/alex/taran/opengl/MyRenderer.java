@@ -27,6 +27,7 @@ import alex.taran.opengl.utils.buffers.VertexBufferHolder;
 import alex.taran.picworld.Command;
 import alex.taran.picworld.GameField;
 import alex.taran.picworld.GameField.CellLightState;
+import alex.taran.picworld.PicworldCamera;
 import alex.taran.picworld.Program;
 import alex.taran.picworld.Robot.ImmutableRobot;
 import alex.taran.picworld.World;
@@ -68,10 +69,12 @@ public class MyRenderer implements Renderer {
 	private ArrayList<HUDElement> hudElements;
 	private FountainParticleSystem fountainParticleSystem;
 	
-	public float cameraPhi;
+	/*public float cameraPhi;
 	public float cameraTheta;
 	public float cameraRadius;
-	public float cameraX, cameraY, cameraZ;
+	public float cameraX, cameraY, cameraZ;*/
+	
+	public final PicworldCamera camera = new PicworldCamera();
 	
 	private float robotDeltaY;
 	
@@ -81,10 +84,6 @@ public class MyRenderer implements Renderer {
 		
 		this.world = world;
 		this.programmingUI = programmingUI;
-		
-		cameraPhi = 0.0f;
-		cameraTheta = 0.0f;
-		cameraRadius = 5.0f;
 	}
 	
 	@Override
@@ -96,16 +95,16 @@ public class MyRenderer implements Renderer {
 		
 		GLES20.glViewport(0, 0, (int)(width * 0.75f), (int)height);
 		
-		float camposx = (float)(cameraRadius * Math.cos(cameraTheta) * Math.cos(cameraPhi));
-		float camposy = (float)(cameraRadius * Math.sin(cameraTheta));
-		float camposz = (float)(cameraRadius * Math.cos(cameraTheta) * Math.sin(cameraPhi));
+		//float camposx = (float)(cameraRadius * Math.cos(cameraTheta) * Math.cos(cameraPhi));
+		//float camposy = (float)(cameraRadius * Math.sin(cameraTheta));
+		//float camposz = (float)(cameraRadius * Math.cos(cameraTheta) * Math.sin(cameraPhi));
 		
-		float camrightx = -(float) Math.sin(cameraPhi);
-		float camrightz = (float) Math.cos(cameraPhi);
+		//float camrightx = -(float) Math.sin(cameraPhi);
+		//float camrightz = (float) Math.cos(cameraPhi);
 		
-		float camupx = - camposy * camrightz;
-		float camupy = - camposz * camrightx + camposx * camrightz;
-		float camupz = + camposy * camrightx;
+		//float camupx = - camposy * camrightz;
+		//float camupy = - camposz * camrightx + camposx * camrightz;
+		//float camupz = + camposy * camrightx;
 		
 		Matrix4 mvMatrix = new Matrix4();
 		Matrix4 viewMatrix = new Matrix4();
@@ -121,7 +120,8 @@ public class MyRenderer implements Renderer {
 		GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 		skyboxShader.use();
 		buffers.bind("cquad", GLES20.GL_ARRAY_BUFFER);
-		viewMatrix.setLookAt(0.0f, 0.0f, 0.0f, -camposx, -camposy, -camposz, camupx, camupy, camupz);
+		//viewMatrix.setLookAt(0.0f, 0.0f, 0.0f, -camposx, -camposy, -camposz, camupx, camupy, camupz);
+		viewMatrix.set(camera.getUnbiasedViewMatrix());
 		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("view_matrix"), 1, false, viewMatrix.data, 0);
 		GLES20.glUniformMatrix4fv(skyboxShader.uniformLoc("projection_matrix"), 1, false, perspectiveMatrix.data, 0);
 		skyboxShader.enableVertexAttribArrays("pos", "tc");
@@ -163,9 +163,9 @@ public class MyRenderer implements Renderer {
 		skyboxShader.unUse();
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		
-		//viewMatrix.setLookAt(camposx, camposy, camposz, 0.0f, 0.0f, 0.0f, camupx, camupy, camupz);
-		viewMatrix.setLookAt(camposx + cameraX, camposy + cameraY, camposz + cameraZ,
-				cameraX, cameraY, cameraZ, camupx, camupy, camupz);
+		//viewMatrix.setLookAt(camposx + cameraX, camposy + cameraY, camposz + cameraZ,
+		//		cameraX, cameraY, cameraZ, camupx, camupy, camupz);
+		viewMatrix.set(camera.getViewMatrix());
 		
 		// BASIS
 		simpleShader.use();
@@ -177,7 +177,7 @@ public class MyRenderer implements Renderer {
 		simpleShader.enableVertexAttribArrays("pos", "col");
 		GLES20.glVertexAttribPointer(simpleShader.attribLoc("pos"), 3, GLES20.GL_FLOAT, true, 24, 0);
 		GLES20.glVertexAttribPointer(simpleShader.attribLoc("col"), 3, GLES20.GL_FLOAT, true, 24, 12);
-		GLES20.glDrawArrays(GLES20.GL_LINES, 0, 6);
+		//GLES20.glDrawArrays(GLES20.GL_LINES, 0, 6);
 		buffers.unBind(GLES20.GL_ARRAY_BUFFER);
 		simpleShader.unUse();
 		
@@ -190,7 +190,8 @@ public class MyRenderer implements Renderer {
 		
 		buffers.bind("sidebox", GLES20.GL_ARRAY_BUFFER);
 		textures.bind("wall");
-		boxShader.setUniform3f("cam_pos", cameraX + camposx, cameraY + camposy, cameraZ + camposz);
+		//boxShader.setUniform3f("cam_pos", cameraX + camposx, cameraY + camposy, cameraZ + camposz);
+		boxShader.setUniform3f("cam_pos", camera.getPosition());
 		GLES20.glVertexAttribPointer(boxShader.attribLoc("pos"), 3, GLES20.GL_FLOAT, true, 0,
 				buffers.getNamedOffset("sidebox", "vertices").offset);
 		GLES20.glVertexAttribPointer(boxShader.attribLoc("nrm"), 3, GLES20.GL_FLOAT, true, 0,
@@ -245,7 +246,8 @@ public class MyRenderer implements Renderer {
 		lightFloorShader.enableVertexAttribArrays("pos", "tc", "nrm");
 		textures.bind("lightfloor");
 		lightFloorShader.setUniform1i("decal", 0);
-		lightFloorShader.setUniform3f("cam_pos", cameraX + camposx, cameraY + camposy, cameraZ + camposz);
+		//lightFloorShader.setUniform3f("cam_pos", cameraX + camposx, cameraY + camposy, cameraZ + camposz);
+		lightFloorShader.setUniform3f("cam_pos", camera.getPosition());
 		lightFloorShader.setUniformMatrix4f("projection_matrix", perspectiveMatrix);
 		GLES20.glVertexAttribPointer(lightFloorShader.attribLoc("pos"), 3, GLES20.GL_FLOAT, true, 0,
 				buffers.getNamedOffset("topbox", "vertices").offset);
@@ -298,7 +300,8 @@ public class MyRenderer implements Renderer {
 		objShader.enableVertexAttribArrays("pos", "nrm", "tc");
 		
 		objShader.setUniform1i("decal", 0);
-		GLES20.glUniform3f(objShader.uniformLoc("cam_pos"), camposx, camposy, camposz);
+		//GLES20.glUniform3f(objShader.uniformLoc("cam_pos"), camposx, camposy, camposz);
+		objShader.setUniform3f("cam_pos", camera.getPosition());
 		objShader.setUniformMatrix4f("projection_matrix", perspectiveMatrix);
 		objShader.setUniformMatrix4f("view_matrix", viewMatrix);
 		ImmutableRobot immutableRobot = world.getCurrentRobotState();
@@ -324,7 +327,9 @@ public class MyRenderer implements Renderer {
 		GLES20.glBlendFunc(GLES20.GL_ONE, GLES20.GL_ONE);
 		textureShader.use();
 		buffers.bind("cquad", GLES20.GL_ARRAY_BUFFER);
-		modelMatrix.setBillboardMatrix(camposx + cameraX, camposy + cameraY, camposz + cameraZ, 5.0f * 2.0f, 4.0f * 2.0f, 3.0f * 2.0f, camupx, camupy, camupz)
+		//modelMatrix.setBillboardMatrix(camposx + cameraX, camposy + cameraY, camposz + cameraZ, 5.0f * 2.0f, 4.0f * 2.0f, 3.0f * 2.0f, camupx, camupy, camupz)
+		//	.scale(7.0f, 7.0f, 1.0f);
+		modelMatrix.setBillboardMatrix(camera.getPosition().x, camera.getPosition().y, camera.getPosition().z, 5.0f * 2.0f, 4.0f * 2.0f, 3.0f * 2.0f, camera.getUp().x, camera.getUp().y, camera.getUp().z)
 			.scale(7.0f, 7.0f, 1.0f);
 		mvMatrix.setProduction(viewMatrix, modelMatrix);
 		textures.bind("sun");
@@ -352,8 +357,10 @@ public class MyRenderer implements Renderer {
 		smokeShader.setUniformMatrix4f("view_matrix", viewMatrix);
 		smokeShader.setUniformMatrix4f("projection_matrix", perspectiveMatrix);
 		//smokeShader.setUniform3f("cam_pos", camposx + cameraX, camposy + cameraY, camposz + cameraZ);
-		smokeShader.setUniform3f("cam_dir", -camposx, -camposy, -camposz);
-		smokeShader.setUniform3f("cam_up", camupx, camupy, camupz);
+		//smokeShader.setUniform3f("cam_dir", -camposx, -camposy, -camposz);
+		smokeShader.setUniform3f("cam_dir", camera.getDirection());
+		//smokeShader.setUniform3f("cam_up", camupx, camupy, camupz);
+		smokeShader.setUniform3f("cam_up", camera.getUp());
 		
 		for (FountainParticle p: fountainParticleSystem.particles) {
 			smokeShader.setUniform3f("particle_pos", p.position);
@@ -426,8 +433,8 @@ public class MyRenderer implements Renderer {
 					immutableRobot.getPosY() * 0.5f + 0.25f + robotDeltaY,
 					immutableRobot.getPosZ() - gameField.getSizeZ() * 0.5f);
 			fountainParticleSystem.setPosition(new Vector3().transformBy(robotModelMatrix));
-			//fountainParticleSystem.sortParticles(camposx, camposy, camposz);
-			fountainParticleSystem.sortParticles(-camposx, -camposy, -camposz);
+			//fountainParticleSystem.sortParticles(-camposx, -camposy, -camposz);
+			fountainParticleSystem.sortParticles(camera.getDirection());
 			lastTimeWorldUpdated = curr;
 			
 			if (curr - lastTimeFPSUpdated >= 1000) {
@@ -480,32 +487,28 @@ public class MyRenderer implements Renderer {
 		textures = new TextureHolder();
 		frameBuffers = new FrameBufferHolder();
 
-		textures.load("icon_scaling", R.drawable.icon_scaling);
-		textures.load("icon_select", R.drawable.icon_select);
-		textures.load("icon_go", R.drawable.icon_go);
-		textures.load("empty_slot", R.drawable.empty_slot);
-		textures.load("command_forward", R.drawable.command_forward);
-		textures.load("command_jump", R.drawable.command_jump);
-		textures.load("command_left", R.drawable.command_left);
-		textures.load("command_right", R.drawable.command_right);
-		textures.load("command_light", R.drawable.command_light);
-		textures.load("command_run_a", R.drawable.command_run_a);
-		textures.load("command_run_b", R.drawable.command_run_b);
+		textures.load("empty_slot", R.drawable.empty_slot).setMipmapFilteringAndGenerateMipmaps();
+		textures.load("command_forward", R.drawable.command_forward).setMipmapFilteringAndGenerateMipmaps();
+		textures.load("command_jump", R.drawable.command_jump).setMipmapFilteringAndGenerateMipmaps();
+		textures.load("command_left", R.drawable.command_left).setMipmapFilteringAndGenerateMipmaps();
+		textures.load("command_right", R.drawable.command_right).setMipmapFilteringAndGenerateMipmaps();
+		textures.load("command_light", R.drawable.command_light).setMipmapFilteringAndGenerateMipmaps();
+		textures.load("command_run_a", R.drawable.command_run_a).setMipmapFilteringAndGenerateMipmaps();
+		textures.load("command_run_b", R.drawable.command_run_b).setMipmapFilteringAndGenerateMipmaps();
 		
-		textures.load("skybox_px", R.drawable.fronthot, true);
-		textures.load("skybox_nx", R.drawable.backhot, true);
-		textures.load("skybox_pz", R.drawable.righthot, true);
-		textures.load("skybox_nz", R.drawable.lefthot, true);
-		textures.load("skybox_py", R.drawable.tophot, true);
-		textures.load("skybox_ny", R.drawable.bothot, true);
+		textures.load("skybox_px", R.drawable.fronthot).setClamping(true);
+		textures.load("skybox_nx", R.drawable.backhot).setClamping(true);
+		textures.load("skybox_pz", R.drawable.righthot).setClamping(true);
+		textures.load("skybox_nz", R.drawable.lefthot).setClamping(true);
+		textures.load("skybox_py", R.drawable.tophot).setClamping(true);
+		textures.load("skybox_ny", R.drawable.bothot).setClamping(true);
 		
-		textures.load("wall", R.drawable.bricks);
-		textures.load("floor", R.drawable.floor);
-		textures.load("lightfloor", R.drawable.lightfloor);
-		textures.load("mix", R.drawable.mix);
+		textures.load("wall", R.drawable.bricks).setMipmapFilteringAndGenerateMipmaps();
+		textures.load("floor", R.drawable.floor).setMipmapFilteringAndGenerateMipmaps();
+		textures.load("lightfloor", R.drawable.lightfloor).setMipmapFilteringAndGenerateMipmaps();
 		
-		textures.load("sun", R.drawable.sun);
-		textures.load("smoke", R.drawable.smoke);
+		textures.load("sun", R.drawable.sun).setMipmapFilteringAndGenerateMipmaps();
+		textures.load("smoke", R.drawable.smoke).setMipmapFilteringAndGenerateMipmaps();
 		
 		
 		textures.createEmpty("fbo_depth", 1024, 1024, GLES20.GL_DEPTH_COMPONENT, GLES20.GL_DEPTH_COMPONENT);
@@ -515,7 +518,7 @@ public class MyRenderer implements Renderer {
 		
 		frameBuffers.create("fbo");
 		frameBuffers.bind("fbo");
-		//textures.attachToCurrentFrameBuffer("fbo_depth", GLES20.GL_DEPTH_ATTACHMENT);
+		textures.attachToCurrentFrameBuffer("fbo_depth", GLES20.GL_DEPTH_ATTACHMENT);
 		Log.d("FUCK", "GL error: " + GLES20.glGetError());
 		textures.attachToCurrentFrameBuffer("fbo_color", GLES20.GL_COLOR_ATTACHMENT0);
 		Log.d("FUCK", "GL error: " + GLES20.glGetError());
@@ -549,7 +552,7 @@ public class MyRenderer implements Renderer {
 		buffers.load("topbox", GLBuffers.gen3DHorizontalQuadBuffer(0.5f, 0.5f), GLBuffers.gen3DHorizontalQuadBufferNamedOffsets());
 		
 		
-		textures.load("r2d2_png", R.drawable.r2d2_png);
+		textures.load("r2d2_png", R.drawable.r2d2_png).setMipmapFilteringAndGenerateMipmaps();
 		Log.d("FUCK", "Start loading R2D2");
 		//r2d2 = new WavefrontObject("r2d2_obj");
 		//robot = Model.loadFromAndroidObj(context, "r2d2_obj", 0.08f);
@@ -573,13 +576,17 @@ public class MyRenderer implements Renderer {
 		ImmutableRobot immutableRobot = world.getCurrentRobotState();
 		GameField gameField = world.getGameField();
 		
-		cameraX = immutableRobot.getPosX() - gameField.getSizeX() * 0.5f;
-		cameraY = immutableRobot.getPosY() + 0.25f + robotDeltaY;
-		cameraZ = immutableRobot.getPosZ() - gameField.getSizeZ() * 0.5f;
+		camera.setCenter(immutableRobot.getPosX() - gameField.getSizeX() * 0.5f,
+				immutableRobot.getPosY() + 0.25f + robotDeltaY,
+				immutableRobot.getPosZ() - gameField.getSizeZ() * 0.5f);
 		
-		cameraRadius = 5.0f;
-		cameraPhi = (float) (Math.PI / 3.0f);
-		cameraTheta = (float) (Math.PI / 6.0f);
+		//cameraX = ;
+		//cameraY = ;
+		//cameraZ = ;
+		camera.setRadius(5.0f).setAnglePhi((float) (Math.PI / 3.0f)).setAngleTheta((float) (Math.PI / 6.0f));
+		//cameraRadius = 5.0f;
+		//cameraPhi = ;
+		//cameraTheta = ;
 		
 		fountainParticleSystem = new FountainParticleSystem()
 			.setDirection(0.0f, 1.0f, 0.0f)
@@ -587,7 +594,7 @@ public class MyRenderer implements Renderer {
 			.setFades(0.2f, 0.4f)
 			.setVelocities(0.25f, 0.4f)
 			.setGravity(0.0f, -0.06f, 0.0f)
-			.setPosition(cameraX, cameraY, cameraZ)
+			.setPosition(camera.getCenter()) // = center of robot
 			.setParticleSize(0.5f)
 			.setResurrection(true)
 			.initialize(30);

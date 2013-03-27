@@ -250,17 +250,22 @@ public class MyGLSurfaceView extends GLSurfaceView {
 			float dx = (x1 + x2 + x3) / 3 - (lastX1 + lastX2 + lastX3) / 3;
 			float dy = (y1 + y2 + y3) / 3 - (lastY1 + lastY2 + lastY3) / 3;
 			
-			float camrightx = -(float) Math.sin(myRenderer.cameraPhi);
-			float camrightz = (float) Math.cos(myRenderer.cameraPhi);
+			float camrightx = -(float) Math.sin(myRenderer.camera.getAnglePhi());
+			float camrightz = (float) Math.cos(myRenderer.camera.getAnglePhi());
 			
-			myRenderer.cameraX += camrightx * dx * myRenderer.cameraRadius / 750.0f;
-			myRenderer.cameraZ += camrightz * dx * myRenderer.cameraRadius / 750.0f;
+			myRenderer.camera.setCenter(myRenderer.camera.getCenter().x +
+					camrightx * dx * myRenderer.camera.getRadius() / 750.0f,
+					myRenderer.camera.getCenter().y,
+					myRenderer.camera.getCenter().z +
+					camrightz * dx * myRenderer.camera.getRadius() / 750.0f);
 			
-			float camfwdx = (float) Math.cos(myRenderer.cameraPhi);
-			float camfwdz = (float) Math.sin(myRenderer.cameraPhi);
-			
-			myRenderer.cameraX -= camfwdx * dy * myRenderer.cameraRadius / 750.0f;
-			myRenderer.cameraZ -= camfwdz * dy * myRenderer.cameraRadius / 750.0f;
+			float camfwdx = (float) Math.cos(myRenderer.camera.getAnglePhi());
+			float camfwdz = (float) Math.sin(myRenderer.camera.getAnglePhi());
+			myRenderer.camera.setCenter(myRenderer.camera.getCenter().x -
+					camfwdx * dy * myRenderer.camera.getRadius() / 750.0f,
+					myRenderer.camera.getCenter().y,
+					myRenderer.camera.getCenter().z -
+					camfwdz * dy * myRenderer.camera.getRadius() / 750.0f);
 			
 			
 			float oldSq2 = Math.abs((lastX3 - lastX1) * (lastY2 - lastY1) - (lastX2 - lastX1) * (lastY3- lastY1));
@@ -284,29 +289,29 @@ public class MyGLSurfaceView extends GLSurfaceView {
 	}
 	
 	private void performRotating(float dx, float dy) {
-		myRenderer.cameraPhi += dx / 200.0f;
-		while (myRenderer.cameraPhi < 0.0f) {
-			myRenderer.cameraPhi += 2.0f * Math.PI;
+		myRenderer.camera.setAnglePhi(myRenderer.camera.getAnglePhi() + dx / 200.0f);
+		while (myRenderer.camera.getAnglePhi() < 0.0f) {
+			myRenderer.camera.setAnglePhi(myRenderer.camera.getAnglePhi() + 2.0f * (float)Math.PI);
 		}
-		while (myRenderer.cameraPhi > 2.0f * Math.PI) {
-			myRenderer.cameraPhi -= 2.0f * Math.PI;
+		while (myRenderer.camera.getAnglePhi() > 2.0f * Math.PI) {
+			myRenderer.camera.setAnglePhi(myRenderer.camera.getAnglePhi() - 2.0f * (float)Math.PI);
 		}
-		myRenderer.cameraTheta += dy / 200.0f;
-		if (myRenderer.cameraTheta > Math.PI * 0.5f) {
-			myRenderer.cameraTheta = (float)Math.PI * 0.5f;
+		myRenderer.camera.setAngleTheta(myRenderer.camera.getAngleTheta() + dy / 200.0f);
+		if (myRenderer.camera.getAngleTheta() > Math.PI * 0.5f) {
+			myRenderer.camera.setAngleTheta( (float)Math.PI * 0.5f);
 		}
-		if (myRenderer.cameraTheta < -Math.PI * 0.5f) {
-			myRenderer.cameraTheta = -(float)Math.PI * 0.5f;
+		if (myRenderer.camera.getAngleTheta() < -Math.PI * 0.5f) {
+			myRenderer.camera.setAngleTheta(-(float)Math.PI * 0.5f);
 		}
 	}
 	
 	private void performScaling(float scaleKoef) {
-		myRenderer.cameraRadius *= scaleKoef;
-		if (myRenderer.cameraRadius < 2.0f) {
-			myRenderer.cameraRadius = 2.0f;
+		myRenderer.camera.setRadius(myRenderer.camera.getRadius() * scaleKoef);
+		if (myRenderer.camera.getRadius() < 2.0f) {
+			myRenderer.camera.setRadius(2.0f);
 		}
-		if (myRenderer.cameraRadius > 20.0f) {
-			myRenderer.cameraRadius = 20.0f;
+		if (myRenderer.camera.getRadius() > 20.0f) {
+			myRenderer.camera.setRadius(20.0f);
 		}
 	}
 }
