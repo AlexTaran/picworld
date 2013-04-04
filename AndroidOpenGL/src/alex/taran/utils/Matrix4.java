@@ -12,6 +12,13 @@ public class Matrix4 {
 		return this;
 	}
 	
+	public Matrix4 set(Matrix4 other) {
+		for (int i = 0; i < 16; ++i) {
+			data[i] = other.data[i];
+		}
+		return this;
+	}
+	
 	public Matrix4 setLookAt(float posx, float posy, float posz,
 			float eyex, float eyey, float eyez,
 			float upx, float upy, float upz) {
