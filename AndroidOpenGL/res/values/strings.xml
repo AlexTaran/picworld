@@ -3,5 +3,19 @@
 
     <string name="hello">Hello World, AndroidOpenGLActivity!</string>
     <string name="app_name">AndroidOpenGL</string>
+    <string name="input_width">Введите ширину</string>
+    <string name="input_height">Введите длину</string>
+    <string name="value">Значение: </string>
+    <string name="ok">Ок </string>
+    <string name="new_map">Новая карта </string>
+    <string name="return_">Вернуться </string>
+    <string name="continue_">Продолжить </string>
+    <string name="available_levels">Доступные уровни </string>
+    <string name="chose_existing">Выбрать существующую</string>
+    <string name="input_level_name">Введите название уровня</string>
+    <string name="input_main_size">Введите размер основной фукнции</string>
+    <string name="input_f1_size">Введите размер первой фукнции</string>
+    <string name="input_f2_size">Введите размер второй функции</string>
+    <string name="save_and_finish">Сохранить и закончить</string>
 
 </resources>

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <Button
+        android:id="@+id/buttoSaveAndFinish"
+        android:layout_width="match_parent"
+        android:layout_height="40sp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:text="@string/save_and_finish" 
+        android:onClick="onSaveAndFinishClick"/>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:gravity="center"
+        android:text="@string/input_level_name" />
+
+    <EditText
+        android:id="@+id/textLevelName"
+        android:layout_width="match_parent"
+        android:layout_height="35sp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView2"
+        android:ems="10"
+        android:gravity="center" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/mainFunctionSize"
+        android:layout_width="match_parent"
+        android:layout_height="35sp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView4"
+        android:ems="10"
+        android:gravity="center" />
+
+    <EditText
+        android:id="@+id/f1FunctionSize"
+        android:layout_width="match_parent"
+        android:layout_height="35sp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView3"
+        android:ems="10"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/mainFunctionSize"
+        android:gravity="center"
+        android:text="@string/input_f1_size" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textLevelName"
+        android:gravity="center"
+        android:text="@string/input_main_size" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/f1FunctionSize"
+        android:gravity="center"
+        android:text="@string/input_f2_size" />
+
+    <EditText
+        android:id="@+id/f2FunctionSize"
+        android:layout_width="match_parent"
+        android:layout_height="35sp"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/textView1"
+        android:ems="10"
+        android:gravity="center" />
+
+</RelativeLayout>
