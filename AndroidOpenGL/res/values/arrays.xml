@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <array name="pressed_button_images">
+        <item>@drawable/red1</item>
+        <item>@drawable/red2</item>
+        <item>@drawable/red3</item>
+        <item>@drawable/red4</item>
+        <item>@drawable/red5</item>
+        <item>@drawable/red6</item>
+        <item>@drawable/red7</item>
+        <item>@drawable/red8</item>
+        <item>@drawable/red9</item>
+        <item>@drawable/red10</item>
+        <item>@drawable/red11</item>
+        <item>@drawable/red12</item>
+        <item>@drawable/red13</item>
+        <item>@drawable/red14</item>
+        <item>@drawable/red15</item>
+        <item>@drawable/red16</item>
+        <item>@drawable/red17</item>
+        <item>@drawable/red18</item>
+        <item>@drawable/red19</item>
+        <item>@drawable/red20</item>
+        <item>@drawable/red21</item>
+        <item>@drawable/red22</item>
+    </array>
+    
+    <array name="nonpressed_button_images">
+        <item>@drawable/blue1</item>
+        <item>@drawable/blue2</item>
+        <item>@drawable/blue3</item>
+        <item>@drawable/blue4</item>
+        <item>@drawable/blue5</item>
+        <item>@drawable/blue6</item>
+        <item>@drawable/blue7</item>
+        <item>@drawable/blue8</item>
+        <item>@drawable/blue9</item>
+        <item>@drawable/blue10</item>
+        <item>@drawable/blue11</item>
+        <item>@drawable/blue12</item>
+        <item>@drawable/blue13</item>
+        <item>@drawable/blue14</item>
+        <item>@drawable/blue15</item>
+        <item>@drawable/blue16</item>
+        <item>@drawable/blue17</item>
+        <item>@drawable/blue18</item>
+        <item>@drawable/blue19</item>
+        <item>@drawable/blue20</item>
+        <item>@drawable/blue21</item>
+        <item>@drawable/blue22</item>
+        
+        
+    </array>
+</resources>
