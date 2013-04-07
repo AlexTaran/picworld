@@ -9,6 +9,7 @@ public class LevelData {
 
 	public GameField gameField;
 	public Robot initRobot;
+
 	public String name;
 	public int mainSize = 10;
 	public int f1Size = 10;

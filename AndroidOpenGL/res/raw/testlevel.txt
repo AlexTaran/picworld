@@ -630,5 +630,8 @@
     "posX":6,
     "posY":0,
     "posZ":8
-  }
+  },
+  "mainProcSize": 8,
+  "firstProcSize": 4,
+  "secondProcSize": 13
 }
