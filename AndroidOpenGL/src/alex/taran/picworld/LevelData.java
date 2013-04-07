@@ -9,6 +9,9 @@ public class LevelData {
 	
 	public GameField gameField;
 	public Robot initRobot;
+	public int mainProcSize;
+	public int firstProcSize;
+	public int secondProcSize;
 	
 	public LevelData(GameField gameField, Robot initRobot) {
 		this.gameField = gameField;

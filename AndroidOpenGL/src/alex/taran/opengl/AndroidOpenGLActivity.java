@@ -91,10 +91,9 @@ public class AndroidOpenGLActivity extends Activity {
 		
 		LevelData levelData = LevelData.createFromJson(ResourceUtils.loadRawTextFileAsString(getApplicationContext(), "testlevel"));
 		
-		
 		//world = new World(gameField, initRobot);
 		world = new World(levelData.gameField, levelData.initRobot);
-		programmingUI = new SimpleHUD(new int[] {7,5,11});
+		programmingUI = new SimpleHUD(new int[] {levelData.mainProcSize, levelData.firstProcSize, levelData.secondProcSize});
 		
 		Log.d("FUCK", "Activity.onCreate memory usage the end: " + getUsedMemorySize());
 	}
