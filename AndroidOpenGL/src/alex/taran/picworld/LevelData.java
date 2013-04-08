@@ -24,6 +24,10 @@ public class LevelData {
 		return gson.toJson(this);
 	}
 
+	public String toString() {
+		return name;
+	}
+
 	public static LevelData createFromJson(String json) {
 		return gson.fromJson(json, LevelData.class);
 	}

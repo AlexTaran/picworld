@@ -192,8 +192,8 @@ public class FieldEditorActivity extends Activity {
 		if (robotX != -1 && robotY != -1) {
 			Robot robot = new Robot();
 			robot.setPosX(robotX);
-			robot.setPosY(robotY);
-			robot.setPosZ(levelData.gameField.getCellAt(robotX, robotY)
+			robot.setPosZ(robotY);
+			robot.setPosX(levelData.gameField.getCellAt(robotX, robotY)
 					.getHeight());
 			switch (robotDir) {
 			case 1:
