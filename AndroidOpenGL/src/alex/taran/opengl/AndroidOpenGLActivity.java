@@ -4,6 +4,7 @@ package alex.taran.opengl;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import vladimir.losev.SimpleHUD;
@@ -89,12 +90,25 @@ public class AndroidOpenGLActivity extends Activity {
 			Log.d("FUCK", "Unable to write: " + file.getAbsolutePath());
 			e.printStackTrace();
 		}*/
+		levelNumber = getIntent().getExtras().getInt("lvl number");
 		
-		LevelData levelData = LevelData.createFromJson(ResourceUtils.loadRawTextFileAsString(getApplicationContext(), "testlevel"));
+		LevelData levelData;
+		try {
+			String[] levels = getAssets().list("levels");
+			if (levels.length == 0) {
+				levelData = null;
+			} else {
+				String filename = levels[levelNumber % levels.length];
+				levelData = LevelData.createFromJson(ResourceUtils.loadInputStreamAsString(getAssets().open("levels/" + filename)));
+			}
+		} catch (IOException e) {
+			levelData = null;
+		}
+		if (levelData == null) {
+			LevelData.createFromJson(ResourceUtils.loadRawTextFileAsString(getApplicationContext(), "testlevel"));
+		}
 		
 		//world = new World(gameField, initRobot);
-		
-		levelNumber = getIntent().getExtras().getInt("lvl number");
 		world = new World(levelData.gameField, levelData.initRobot);
 		programmingUI = new SimpleHUD(new int[] {levelData.mainProcSize, levelData.firstProcSize, levelData.secondProcSize});
 		
