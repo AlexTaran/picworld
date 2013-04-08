@@ -1,4 +1,5 @@
 {
+"name":"testlevel",
   "gameField":{
     "cells":[
       [
@@ -230,7 +231,7 @@
         },
         {
           "lightState":"NO_LIGHT",
-          "height":0
+          "height":3
         },
         {
           "lightState":"NO_LIGHT",
@@ -631,7 +632,7 @@
     "posY":0,
     "posZ":8
   },
-  "mainProcSize": 8,
-  "firstProcSize": 4,
-  "secondProcSize": 13
+  "mainSize": 8,
+  "f1Size": 4,
+  "f2Size": 13
 }

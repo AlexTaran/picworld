@@ -45,7 +45,7 @@
         <activity
             android:name="ilya.irhin.editor.FunctionsEditorActivity"
             android:label="@string/app_name"
-            android:screenOrientation="sensorLandscape" >
+            android:screenOrientation="sensorLandscape" />
         <activity android:name="max.popov.MainMenuActivity"
             	  android:launchMode="singleTask">
             <intent-filter>
