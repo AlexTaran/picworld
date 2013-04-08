@@ -45,6 +45,7 @@
             android:layout_gravity="center"
             android:layout_marginBottom="2dp"
             android:layout_marginTop="2dp"
+            android:onClick="onLevelEditorButtonClick"
             android:background="@drawable/lvl_editor_button"
             android:clickable="true" />
 
