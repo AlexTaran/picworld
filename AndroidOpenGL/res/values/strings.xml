@@ -1,5 +1,4 @@
-﻿
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <string name="hello">Hello World, AndroidOpenGLActivity!</string>
@@ -18,13 +17,9 @@
     <string name="input_f1_size">Введите размер первой фукнции</string>
     <string name="input_f2_size">Введите размер второй функции</string>
     <string name="save_and_finish">Сохранить и закончить</string>
- <string name="hello">Hello World, AndroidOpenGLActivity!</string>
-<string name="app_name">AndroidOpenGL</string>
- 
-<string name="chooseLvl"><b>Выберите уровень</b></string>
- <string name="effectValue">Качество графики</string>
- <string name="musicValue">Громкость звука</string>
- 
-   <string name="robotSpeedValue">Скорость робота</string>
+	<string name="chooseLvl"><b>Выберите уровень</b></string>
+	<string name="effectValue">Качество графики</string>
+	<string name="musicValue">Громкость звука</string>
+	<string name="robotSpeedValue">Скорость робота</string>
   
 </resources>
