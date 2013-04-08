@@ -205,7 +205,7 @@
           "height":0
         },
         {
-          "lightState":"LIGHT_ON",
+          "lightState":"LIGHT_OFF",
           "height":1
         },
         {

@@ -2,6 +2,11 @@
 /* Use of this source code is governed by a BSD-style license that can be found in the LICENSE file */
 package alex.taran.opengl;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+
 import vladimir.losev.SimpleHUD;
 import alex.taran.opengl.utils.ResourceUtils;
 import alex.taran.picworld.GameField;
@@ -15,6 +20,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 
 public class AndroidOpenGLActivity extends Activity {
@@ -23,7 +29,8 @@ public class AndroidOpenGLActivity extends Activity {
 	private World world;
 	private SimpleHUD programmingUI;
 	private ActivityManager activityManager;
-	// private GameView gameView;
+	private int levelNumber;
+	//private GameView gameView;
 
 	private static AndroidOpenGLActivity instance;
 
@@ -64,42 +71,63 @@ public class AndroidOpenGLActivity extends Activity {
 		gameField.getCellAt(9, 14).setHeight(3);
 
 		Robot initRobot = new Robot();
-
-		/*
-		 * Gson gson = new Gson();
-		 * 
-		 * File root = android.os.Environment.getExternalStorageDirectory();
-		 * File myFolder = new File(root, "PicWorld"); myFolder.mkdir();
-		 * Log.d("FUCK", root.getAbsolutePath()); File file = new File(myFolder,
-		 * "testLevel.txt"); try { FileOutputStream f = new
-		 * FileOutputStream(file); OutputStreamWriter ow = new
-		 * OutputStreamWriter(f); //ow.write("Test file write...");
-		 * //ow.write(gson.toJson(gameField).toString());
-		 * //ow.write(gson.toJson(initRobot).toString()); ow.write(new
-		 * LevelData(gameField, initRobot).toJson()); ow.close(); f.close();
-		 * MediaScannerConnection.scanFile(this.getApplicationContext(), new
-		 * String[]{file.getAbsolutePath()}, null, null); Log.d("FUCK",
-		 * "Successfully written: " + file.getAbsolutePath()); } catch
-		 * (Exception e) { Log.d("FUCK", "Unable to write: " +
-		 * file.getAbsolutePath()); e.printStackTrace(); }
-		 */
-
-		LevelData levelData = LevelData.createFromJson(ResourceUtils
-				.loadRawTextFileAsString(getApplicationContext(), "testlevel"));
-
-		// world = new World(gameField, initRobot);
+		/*Gson gson = new Gson();	
+		File root = android.os.Environment.getExternalStorageDirectory(); 
+		File myFolder = new File(root, "PicWorld");
+		myFolder.mkdir();
+		Log.d("FUCK", root.getAbsolutePath());
+		File file = new File(myFolder, "testLevel.txt");
+		try {
+			FileOutputStream f = new FileOutputStream(file);
+			OutputStreamWriter ow = new OutputStreamWriter(f);
+			//ow.write("Test file write...");
+			//ow.write(gson.toJson(gameField).toString());
+			//ow.write(gson.toJson(initRobot).toString());
+			ow.write(new LevelData(gameField, initRobot).toJson());
+			ow.close();
+			f.close();
+			MediaScannerConnection.scanFile(this.getApplicationContext(), new String[]{file.getAbsolutePath()}, null, null);
+			Log.d("FUCK", "Successfully written: " + file.getAbsolutePath());
+		} catch (Exception e) {
+			Log.d("FUCK", "Unable to write: " + file.getAbsolutePath());
+			e.printStackTrace();
+		}*/
+		levelNumber = getIntent().getExtras().getInt("lvl number");
+		
+		LevelData levelData;
+		try {
+			String[] levels = getAssets().list("levels");
+			if (levels.length == 0) {
+				levelData = null;
+			} else {
+				String filename = levels[levelNumber % levels.length];
+				levelData = LevelData.createFromJson(ResourceUtils.loadInputStreamAsString(getAssets().open("levels/" + filename)));
+			}
+		} catch (IOException e) {
+			levelData = null;
+		}
+		if (levelData == null) {
+			LevelData.createFromJson(ResourceUtils.loadRawTextFileAsString(getApplicationContext(), "testlevel"));
+		}
+		
+		//world = new World(gameField, initRobot);
 		world = new World(levelData.gameField, levelData.initRobot);
 		programmingUI = new SimpleHUD(new int[] { levelData.mainSize,
 				levelData.f1Size, levelData.f2Size });
-
-		Log.d("FUCK", "Activity.onCreate memory usage the end: "
-				+ getUsedMemorySize());
+		
+		Log.d("FUCK", "Activity.onCreate memory usage the end: " + getUsedMemorySize());
 	}
 
 	@Override
 	public void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		renderer = new MyRenderer(world, programmingUI);
+		Runnable onWinning = new Runnable() {
+			@Override
+			public void run() {
+				finish();
+			}
+		};
+		renderer = new MyRenderer(world, programmingUI, onWinning);
 		View v = findViewById(R.id.my_view);
 		// Log.e("FUCK", v.toString());
 		glView = (MyGLSurfaceView) v;
@@ -108,13 +136,28 @@ public class AndroidOpenGLActivity extends Activity {
 
 		h.postDelayed(updateProc, 100);
 	}
-
+	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+	    if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+	        finish();
+	    }
+	    return super.onKeyDown(keyCode, event);
+	}
+	
+	@Override
+	public void onDestroy() {
+		glView.cleanupOpenGLResorces();
+		super.onDestroy();
+	}
+	
+	
 	Handler h = new Handler();
 
 	private Runnable updateProc = new Runnable() {
 		@Override
 		public void run() {
-			setTitle("FPS:" + renderer.getFPS());
+			setTitle("Level " + levelNumber + " FPS:"+renderer.getFPS());
 			h.postDelayed(this, 300);
 		}
 	};

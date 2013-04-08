@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import vladimir.losev.HUDButtonElement;
 import vladimir.losev.HUDDraggableElement;
 import vladimir.losev.HUDElement;
 import vladimir.losev.HUDSlotElement;
@@ -56,6 +57,7 @@ public class MyRenderer implements Renderer {
 	
 	private World world;
 	private SimpleHUD programmingUI;
+	private Runnable onWinning;
 
 	private Shader simpleShader;
 	private Shader boxShader;
@@ -78,12 +80,13 @@ public class MyRenderer implements Renderer {
 	
 	private float robotDeltaY;
 	
-	public MyRenderer(World world, SimpleHUD programmingUI) {
+	public MyRenderer(World world, SimpleHUD programmingUI, Runnable onWinning) {
 		hudElements = new ArrayList<HUDElement>();
 		//rand = new Random(SystemClock.elapsedRealtime());
 		
 		this.world = world;
 		this.programmingUI = programmingUI;
+		this.onWinning = onWinning;
 	}
 	
 	@Override
@@ -398,6 +401,12 @@ public class MyRenderer implements Renderer {
 				case CALL_A:       textures.bind("command_run_a");   break;
 				case CALL_B:       textures.bind("command_run_b");   break;
 				}
+			} else if (e instanceof HUDButtonElement) {
+				if (programmingUI.isButtonStarted()) {
+					textures.bind("button_robot_stop");
+				} else {
+					textures.bind("button_robot_play");
+				}
 			} else if (e instanceof HUDSlotElement) {
 				textures.bind("empty_slot");
 			}
@@ -436,6 +445,10 @@ public class MyRenderer implements Renderer {
 			//fountainParticleSystem.sortParticles(-camposx, -camposy, -camposz);
 			fountainParticleSystem.sortParticles(camera.getDirection());
 			lastTimeWorldUpdated = curr;
+			
+			if (world.isWinning()) {
+				onWinning.run();
+			}
 			
 			if (curr - lastTimeFPSUpdated >= 1000) {
 				lastFPS = (int) (frameCounter * 1000.0f / (curr - lastTimeFPSUpdated));
@@ -495,6 +508,8 @@ public class MyRenderer implements Renderer {
 		textures.load("command_light", R.drawable.command_light).setMipmapFilteringAndGenerateMipmaps();
 		textures.load("command_run_a", R.drawable.command_run_a).setMipmapFilteringAndGenerateMipmaps();
 		textures.load("command_run_b", R.drawable.command_run_b).setMipmapFilteringAndGenerateMipmaps();
+		textures.load("button_robot_play", R.drawable.button_robot_play).setMipmapFilteringAndGenerateMipmaps();
+		textures.load("button_robot_stop", R.drawable.button_robot_stop).setMipmapFilteringAndGenerateMipmaps();
 		
 		textures.load("skybox_px", R.drawable.fronthot).setClamping(true);
 		textures.load("skybox_nx", R.drawable.backhot).setClamping(true);
@@ -638,5 +653,11 @@ public class MyRenderer implements Renderer {
 			}
 		}
 		return modelMatrix;
+	}
+
+	public void cleanupOpenGLResources() {
+		textures.clear();
+		buffers.clear();
+		frameBuffers.clear();
 	}
 }

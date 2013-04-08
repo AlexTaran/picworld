@@ -153,6 +153,10 @@ public class World {
 		}
 	}
 	
+	public boolean isWinning() {
+		return gameField.isWinning();
+	}
+	
 	private Robot robot;
 	private Program program;
 	private GameField gameField;

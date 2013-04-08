@@ -314,4 +314,8 @@ public class MyGLSurfaceView extends GLSurfaceView {
 			myRenderer.camera.setRadius(20.0f);
 		}
 	}
+
+	public void cleanupOpenGLResorces() {
+		myRenderer.cleanupOpenGLResources();
+	}
 }

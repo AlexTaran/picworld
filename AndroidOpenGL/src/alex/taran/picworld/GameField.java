@@ -109,6 +109,17 @@ public class GameField implements Cloneable{
 		private int height;
 	}
 	
+	public boolean isWinning() {
+		for (int i = 0; i < sizeX; ++i) {
+			for (int j = 0; j < sizeZ; ++j) {
+				if(cells[i][j].getLightState() == CellLightState.LIGHT_OFF){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
 	private int sizeX;
 	private int sizeZ;
 	private Cell[][] cells;
