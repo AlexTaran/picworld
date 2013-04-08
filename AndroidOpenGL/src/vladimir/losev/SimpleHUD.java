@@ -180,6 +180,20 @@ public class SimpleHUD implements HUD {
 		return false;
 	}
 	
+	public boolean isButtonStarted() {
+		for (HUDElement e : elements) {
+			if (e instanceof HUDButtonElement) {
+				HUDButtonElement button = (HUDButtonElement)e;
+				if (button.function.equals(onStart)) {
+					return false;
+				} else {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	private synchronized void startDragging(HUDDraggableElement element, float x, float y) {
 		draggedElement = element;
 		elementOffsetX = element.left - x;

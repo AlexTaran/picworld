@@ -279,7 +279,7 @@
           "height":0
         },
         {
-          "lightState":"LIGHT_OFF",
+          "lightState":"LIGHT_ON",
           "height":0
         },
         {
@@ -321,7 +321,7 @@
           "height":0
         },
         {
-          "lightState":"LIGHT_OFF",
+          "lightState":"LIGHT_ON",
           "height":0
         },
         {
@@ -329,7 +329,7 @@
           "height":0
         },
         {
-          "lightState":"LIGHT_OFF",
+          "lightState":"LIGHT_ON",
           "height":2
         },
         {

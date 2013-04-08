@@ -20,6 +20,7 @@ import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 
 import com.google.gson.Gson;
@@ -29,7 +30,8 @@ public class AndroidOpenGLActivity extends Activity {
 	private MyGLSurfaceView glView;
 	private World world;
 	private SimpleHUD programmingUI;
-	private  ActivityManager activityManager;
+	private ActivityManager activityManager;
+	private int levelNumber;
 	//private GameView gameView;
 	
 	private static AndroidOpenGLActivity instance;
@@ -66,8 +68,7 @@ public class AndroidOpenGLActivity extends Activity {
 		
 		Robot initRobot = new Robot();
 		
-		/*Gson gson = new Gson();
-		
+		/*Gson gson = new Gson();	
 		File root = android.os.Environment.getExternalStorageDirectory(); 
 		File myFolder = new File(root, "PicWorld");
 		myFolder.mkdir();
@@ -92,6 +93,8 @@ public class AndroidOpenGLActivity extends Activity {
 		LevelData levelData = LevelData.createFromJson(ResourceUtils.loadRawTextFileAsString(getApplicationContext(), "testlevel"));
 		
 		//world = new World(gameField, initRobot);
+		
+		levelNumber = getIntent().getExtras().getInt("lvl number");
 		world = new World(levelData.gameField, levelData.initRobot);
 		programmingUI = new SimpleHUD(new int[] {levelData.mainProcSize, levelData.firstProcSize, levelData.secondProcSize});
 		
@@ -101,7 +104,13 @@ public class AndroidOpenGLActivity extends Activity {
 	@Override
 	public void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
-		renderer = new MyRenderer(world, programmingUI);
+		Runnable onWinning = new Runnable() {
+			@Override
+			public void run() {
+				finish();
+			}
+		};
+		renderer = new MyRenderer(world, programmingUI, onWinning);
 		View v = findViewById(R.id.my_view);
 		//Log.e("FUCK", v.toString());
 		glView = (MyGLSurfaceView)v;
@@ -111,13 +120,27 @@ public class AndroidOpenGLActivity extends Activity {
 		h.postDelayed(updateProc, 100);
 	}
 	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+	    if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+	        finish();
+	    }
+	    return super.onKeyDown(keyCode, event);
+	}
+	
+	@Override
+	public void onDestroy() {
+		glView.cleanupOpenGLResorces();
+		super.onDestroy();
+	}
+	
 	
 	Handler h = new Handler();
 	
 	private Runnable updateProc = new Runnable() {
 		@Override
 		public void run() {
-			setTitle("FPS:"+renderer.getFPS());
+			setTitle("Level " + levelNumber + " FPS:"+renderer.getFPS());
 			h.postDelayed(this, 300);
 		}
 	};

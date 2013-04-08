@@ -6,7 +6,7 @@ import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
+/*
 import com.facebook.FacebookRequestError;
 import com.facebook.HttpMethod;
 import com.facebook.Request;
@@ -15,7 +15,7 @@ import com.facebook.Response;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.model.GraphUser;
-
+*/
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
@@ -140,7 +140,7 @@ public class MainMenuActivity extends Activity {
 			}
 		});
 	}
-
+/*
 	public void postOnFB(View v) {
 		// createFacebookConnection();
 		Session.openActiveSession(this, true, new Session.StatusCallback() {
@@ -169,8 +169,8 @@ public class MainMenuActivity extends Activity {
 			}
 		});
 		postOnWall();
-	}
-
+	}*/
+/*
 	private void postOnWall() {
 		Session session = Session.getActiveSession();
 
@@ -226,7 +226,7 @@ public class MainMenuActivity extends Activity {
 			task.execute();
 		}
 
-	}
+	}*/
 
 	private boolean isSubsetOf(Collection<String> subset,
 			Collection<String> superset) {
@@ -241,8 +241,8 @@ public class MainMenuActivity extends Activity {
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		Session.getActiveSession().onActivityResult(this, requestCode,
-				resultCode, data);
+		/*Session.getActiveSession().onActivityResult(this, requestCode,
+				resultCode, data);*/
 	}
 
 	public void postToTwitter() {
